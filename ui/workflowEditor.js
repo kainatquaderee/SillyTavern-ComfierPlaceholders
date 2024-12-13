@@ -1,7 +1,22 @@
+import { createReplacerDialog } from './replacerDialog.js';
+
 function handleReplacerButtonClick() {
-    const workflowNameElement = document.getElementById('sd_comfy_workflow_editor_name');
-    const workflowName = workflowNameElement?.textContent || 'Unknown workflow';
-    alert(`Opening replacer for workflow: ${workflowName}`);
+    const workflowElement = document.getElementById('sd_comfy_workflow_editor_workflow');
+    const workflowJson = workflowElement?.value;
+    
+    if (!workflowJson) {
+        alert('No workflow found');
+        return;
+    }
+
+    try {
+        const dialog = createReplacerDialog(workflowJson);
+        const popup = new Popup(dialog, 'alert', '', { wide: true });
+        popup.show();
+    } catch (error) {
+        console.error('Failed to parse workflow:', error);
+        alert('Failed to parse workflow: ' + error.message);
+    }
 }
 
 function injectReplacerButton() {
