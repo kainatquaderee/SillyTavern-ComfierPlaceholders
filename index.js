@@ -12,12 +12,8 @@ Examples:
 - For Flux_txt2img.json, node titled "CLIP Loader", input "clip_name1" should be replaced with "%clip%"
 
 TODO list:
-- get the current workflow from Image Generation
-- parse out all the nodes
-- list each node's class, title, non-node inputs, and their values
-- allow the user to select an input and change its value to a placeholder
-- put the rewritten workflow back into the Image Generation Workflow Editor
-- save the list of placeholders to the extension settings so they can be reused
+- allow the user to select an input and add a change rule for it
+- save the list of rules to the extension settings so they can be reused
 - allow global and per-workflow placeholders
 - check for placeholders in the workflow that are not in the list and prompt the user to add them
 */

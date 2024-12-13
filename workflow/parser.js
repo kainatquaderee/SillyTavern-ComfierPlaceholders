@@ -1,3 +1,5 @@
+import { settingsKey } from '../consts.js';
+
 /**
  * @typedef {Object} WorkflowNode
  * @property {Object} inputs - Node inputs
@@ -7,29 +9,46 @@
  */
 
 /**
- * Parse a ComfyUI workflow and extract relevant node information
- * @param {string} workflowJson - The workflow JSON string
- * @returns {Object[]} Array of parsed nodes with their inputs
+ * @typedef {Object} NodeInput
+ * @property {string} name - Input name
+ * @property {string} value - Input value
+ * @property {string} placeholder - Placeholder to replace
  */
-function parseWorkflow(workflowJson) {
+
+/**
+ * @typedef {Object} NodeInfo
+ * @property {string} id - Node ID
+ * @property {string} title - Node title
+ * @property {string} class_type - Node
+ * @property {Record<string,NodeInput>} inputs - Node inputs
+ */
+
+/**
+ * Parse a ComfyUI workflow and extract relevant node information
+ * @param {string} workflowName - The name of the workflow
+ * @param {string} workflowJson - The workflow JSON string
+ * @returns {NodeInfo[]} List of nodes with inputs
+ */
+function parseWorkflow(workflowName, workflowJson) {
     const workflow = JSON.parse(workflowJson);
+    /** @type {NodeInfo[]} */
     const nodes = [];
 
     for (const [nodeId, node] of Object.entries(workflow)) {
+
         // We're only interested in nodes that have inputs
         if (!node.inputs) continue;
 
-        const nodeInfo = {
-            id: nodeId,
-            title: node._meta?.title || 'Untitled',
-            class_type: node.class_type,
-            inputs: {},
-        };
+        const nodeInfo = makeNodeInfo(nodeId, node._meta?.title || 'Untitled', node.class_type, {});
 
         // Only include non-node inputs (nodes are referenced by array [nodeId, outputIndex])
         for (const [inputName, inputValue] of Object.entries(node.inputs)) {
             if (!Array.isArray(inputValue)) {
-                nodeInfo.inputs[inputName] = inputValue;
+                nodeInfo.inputs[inputName] = makeNodeInput(inputName, inputValue);
+                const rules = findMatchingRulesForNode(workflowName, nodeInfo, inputName);
+                if (rules.length > 0) {
+                    nodeInfo.inputs[inputName].placeholder = rules[0].placeholder;
+                }
             }
         }
 
@@ -54,7 +73,7 @@ function replaceInputWithPlaceholder(workflowJson, nodeId, inputName, placeholde
     }
 
     workflow[nodeId].inputs[inputName] = `%${placeholder}%`;
-    return JSON.stringify(workflow, null, 4);
+    return JSON.stringify(workflow, null, 2);
 }
 
 /**
@@ -74,4 +93,77 @@ function findExistingPlaceholders(workflowJson) {
     return placeholders;
 }
 
-export { parseWorkflow, replaceInputWithPlaceholder, findExistingPlaceholders };
+/**
+ *
+ * @param {string} nodeId
+ * @param {string} title
+ * @param {string} class_type
+ * @param {Object} inputs
+ * @returns {NodeInfo}
+ */
+function makeNodeInfo(nodeId, title, class_type, inputs) {
+    return {
+        id: nodeId,
+        title,
+        class_type,
+        inputs,
+    };
+}
+
+/**
+ *
+ * @param inputName
+ * @param value
+ * @returns {NodeInput}
+ */
+function makeNodeInput(inputName, value) {
+    return {
+        name: inputName,
+        value,
+        placeholder: '',
+    };
+}
+
+
+/**
+ * Find all matching replacement rules for a node
+ *
+ * @param {NodeInfo} node
+ * @param {string} workflowName
+ * @param {string} inputName
+ * @returns {ReplacementRule[]}
+ */
+function findMatchingRulesForNode(workflowName, node, inputName) {
+    const context = SillyTavern.getContext();
+    const settings = context.extensionSettings[settingsKey];
+
+    /** @type {ReplacementRule[]} */
+    const rules = settings.replacements;
+
+    const predicates = [
+        rule => !rule.workflowName || rule.workflowName === workflowName,
+        rule => !rule.nodeTitle || rule.nodeTitle === node.title,
+        rule => !rule.nodeClass || rule.nodeClass === node.class_type,
+        rule => rule.inputName === inputName,
+    ];
+    return rules.filter(rule => predicates.every(predicate => predicate(rule)));
+}
+
+function replaceAllPlaceholders(workflowName, workflowJson) {
+    const nodes = parseWorkflow(workflowName, workflowJson);
+    let updatedWorkflow = workflowJson;
+
+    for (const node of nodes) {
+        for (const [inputName, inputValue] of Object.entries(node.inputs)) {
+            const rules = findMatchingRulesForNode(workflowName, node, inputName);
+            for (const rule of rules) {
+                if (rule.placeholder === inputValue) break;
+                updatedWorkflow = replaceInputWithPlaceholder(updatedWorkflow, node.id, inputName, rule.placeholder);
+            }
+        }
+    }
+
+    return updatedWorkflow;
+}
+
+export { parseWorkflow, replaceInputWithPlaceholder, findExistingPlaceholders, replaceAllPlaceholders };
