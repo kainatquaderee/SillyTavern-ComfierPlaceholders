@@ -42,8 +42,7 @@ function createInputElement(id, name, nodeInput) {
     } else if (nodeInput.placeholder === '') {
         actionButton.classList.add('no-rule');
         actionButton.textContent = 'Add Rule';
-        const addRuleHandler = async function() {
-            const node = this.closest('.node-item').nodeInfo;
+        actionButton.addEventListener('click', addRuleHandler);
             const workflowElement = document.getElementById('sd_comfy_workflow_editor_workflow');
             const workflowName = workflowElement?.dataset?.workflowName || null;
             const newRule = await showReplacementRuleDialog({
