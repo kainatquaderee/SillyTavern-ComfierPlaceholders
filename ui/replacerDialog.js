@@ -1,5 +1,6 @@
 import { parseWorkflow, replaceInputWithPlaceholder } from '../workflow/parser.js';
 import { EXTENSION_NAME } from '../consts.js';
+import { showReplacementRuleDialog } from './replacementRuleDialog.js';
 
 function onInputReplaceClick(target, id, name, nodeInput) {
     console.log(`[${EXTENSION_NAME}] Replace input`, id, name, nodeInput.placeholder);
