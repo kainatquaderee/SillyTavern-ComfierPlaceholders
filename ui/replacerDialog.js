@@ -1,4 +1,4 @@
-import { parseWorkflow, replaceInputWithPlaceholder, findExistingPlaceholders } from '../workflow/parser.js';
+import { parseWorkflow, findExistingPlaceholders } from '../workflow/parser.js';
 
 function createReplacerDialog(workflowJson) {
     const nodes = parseWorkflow(workflowJson);
@@ -30,8 +30,7 @@ function createReplacerDialog(workflowJson) {
                 <strong>${node.title}</strong> (${node.class_type})
             </div>
             <div class="node-inputs">
-                ${Object.entries(node.inputs)
-                    .map(([name, value]) => `
+                ${Object.entries(node.inputs).map(([name, value]) => `
                         <div class="input-row">
                             <span>${name}: ${value}</span>
                             <button class="menu_button" data-node="${node.id}" data-input="${name}">

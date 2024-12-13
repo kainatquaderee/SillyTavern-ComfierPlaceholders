@@ -1,9 +1,10 @@
 import { createReplacerDialog } from './replacerDialog.js';
 
-function handleReplacerButtonClick() {
+async function handleReplacerButtonClick() {
+    const context = SillyTavern.getContext();
     const workflowElement = document.getElementById('sd_comfy_workflow_editor_workflow');
     const workflowJson = workflowElement?.value;
-    
+
     if (!workflowJson) {
         alert('No workflow found');
         return;
@@ -11,8 +12,7 @@ function handleReplacerButtonClick() {
 
     try {
         const dialog = createReplacerDialog(workflowJson);
-        const popup = new Popup(dialog, 'alert', '', { wide: true });
-        popup.show();
+        await context.callGenericPopup(dialog, context.POPUP_TYPE.TEXT, '', { wide: true, large: true });
     } catch (error) {
         console.error('Failed to parse workflow:', error);
         alert('Failed to parse workflow: ' + error.message);
