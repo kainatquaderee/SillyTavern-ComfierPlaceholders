@@ -42,7 +42,7 @@ function createInputElement(id, name, nodeInput) {
     } else if (nodeInput.placeholder === '') {
         actionButton.classList.add('no-rule');
         actionButton.textContent = 'Add Rule';
-        actionButton.addEventListener('click', async function() {
+        const addRuleHandler = async function() {
             const node = this.closest('.node-item').nodeInfo;
             const workflowElement = document.getElementById('sd_comfy_workflow_editor_workflow');
             const workflowName = workflowElement?.dataset?.workflowName || null;
@@ -67,7 +67,8 @@ function createInputElement(id, name, nodeInput) {
                 actionButton.textContent = 'Replace';
                 nodeInput.placeholder = newRule.placeholder;
 
-                // Add click handler for replacement
+                // Remove old handler and add new one for replacement
+                actionButton.removeEventListener('click', addRuleHandler);
                 actionButton.addEventListener('click', (e) => {
                     onInputReplaceClick(e.target, id, name, nodeInput);
                 });
