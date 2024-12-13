@@ -1,6 +1,6 @@
 // noinspection DuplicatedCode
 
-import { settingsKey, EXTENSION_NAME } from '../index.js';
+import { settingsKey, EXTENSION_NAME } from '../consts.js';
 
 function renderExtensionSettings() {
     const context = SillyTavern.getContext();

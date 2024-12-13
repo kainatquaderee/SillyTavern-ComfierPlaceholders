@@ -3,6 +3,14 @@
 /*
 Comfier Placeholders
 
+Objective:
+Make it easier to replace inputs in the Image Generation workflow with placeholders.
+
+Examples:
+- for all nodes of class_type KSampler, the input "seed" should be replaced with the placeholder "%seed%"
+- For Flux_img2img.json, KSampler input "denoise" should be replaced with "%denoise%"
+- For Flux_txt2img.json, node titled "CLIP Loader", input "clip_name1" should be replaced with "%clip%"
+
 TODO list:
 - get the current workflow from Image Generation
 - parse out all the nodes
