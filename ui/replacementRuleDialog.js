@@ -5,16 +5,16 @@
  */
 async function showReplacementRuleDialog(existingRule = null) {
     const context = SillyTavern.getContext();
-    
+
     const form = document.createElement('div');
     form.innerHTML = `
-        <div style="display: grid; gap: 10px; margin: 10px;">
-            <label>Workflow Name (optional):<input type="text" id="workflowName"></label>
-            <label>Node Title (optional):<input type="text" id="nodeTitle"></label>
-            <label>Node Class (optional):<input type="text" id="nodeClass"></label>
-            <label>Input Name (optional):<input type="text" id="inputName"></label>
-            <label>Placeholder:<input type="text" id="placeholder" required></label>
-            <label>Description:<input type="text" id="description" required></label>
+        <div class="flex-container flexFlowColumn">
+            <label>Workflow Name (optional):<input type="text" id="workflowName" class="text_pole"></label>
+            <label>Node Title (optional):<input type="text" id="nodeTitle" class="text_pole"></label>
+            <label>Node Class (optional):<input type="text" id="nodeClass" class="text_pole"></label>
+            <label>Input Name (optional):<input type="text" id="inputName" class="text_pole"></label>
+            <label>Placeholder (no %%):<input type="text" id="placeholder" required class="text_pole"></label>
+            <label>Description:<input type="text" id="description" required class="text_pole"></label>
         </div>
     `;
 
