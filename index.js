@@ -1,15 +1,17 @@
 // noinspection DuplicatedCode
 
 /*
-Starter code for a SillyTavern extension. This code will be executed in the context of
-the SillyTavern page. You can access the SillyTavern API via SillyTavern.getContext().
+Comfier Placeholders
 
-This sample extension adds a settings drawer to the extensions settings page, allowing
-the user to enable/disable the extension. It also listens for chat change events and
-shows a notification ("toast") when the chat changes, if the extension is enabled.
-
-This code is adapted from the Inject Manager extension. See the full extension here:
-https://github.com/SillyTavern/Extension-InjectManager
+TODO list:
+- get the current workflow from Image Generation
+- parse out all the nodes
+- list each node's class, title, non-node inputs, and their values
+- allow the user to select an input and change its value to a placeholder
+- put the rewritten workflow back into the Image Generation Workflow Editor
+- save the list of placeholders to the extension settings so they can be reused
+- allow global and per-workflow placeholders
+- check for placeholders in the workflow that are not in the list and prompt the user to add them
 */
 
 const settingsKey = 'SillyTavernComfierPlaceholders';
@@ -87,13 +89,6 @@ function renderExtensionSettings() {
             context.extensionSettings[settingsKey][key] = defaultSettings[key];
         }
     }
-
-    context.eventSource.on(context.eventTypes.CHAT_CHANGED, () => {
-        if (!context.extensionSettings[settingsKey].enabled) {
-            return;
-        }
-        toastr.info(context.t`Chat changed`, EXTENSION_NAME);
-    });
 
     context.saveSettingsDebounced();
 
