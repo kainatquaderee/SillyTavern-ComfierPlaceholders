@@ -51,21 +51,21 @@ function createInputElement(id, name, nodeInput) {
                 nodeClass: node.class_type,
                 inputName: name,
                 placeholder: '',
-                description: ''
+                description: '',
             });
-            
+
             if (newRule) {
                 const context = SillyTavern.getContext();
                 const settings = context.extensionSettings[settingsKey];
                 settings.replacements.push(newRule);
                 context.saveSettingsDebounced();
-                
+
                 // Update button state
                 actionButton.classList.remove('no-rule');
                 actionButton.classList.add('can-replace');
                 actionButton.textContent = 'Replace';
                 nodeInput.placeholder = newRule.placeholder;
-                
+
                 // Add click handler for replacement
                 actionButton.addEventListener('click', (e) => {
                     onInputReplaceClick(e.target, id, name, nodeInput);
