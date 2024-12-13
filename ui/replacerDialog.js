@@ -1,5 +1,35 @@
 import { parseWorkflow, findExistingPlaceholders, replaceInputWithPlaceholder } from '../workflow/parser.js';
 
+async function handleReplace(button, workflowJson, dialog, onUpdate) {
+    const nodeId = button.dataset.node;
+    const inputName = button.dataset.input;
+
+    const placeholder = await SillyTavern.getContext().callGenericPopup('Enter a placeholder', SillyTavern.getContext().POPUP_TYPE.INPUT, '');
+
+    if (!placeholder) return;
+
+    try {
+        const updatedWorkflow = replaceInputWithPlaceholder(
+            workflowJson,
+            nodeId,
+            inputName,
+            placeholder.trim(),
+        );
+
+        // Update the dialog contents
+        const newDialog = createReplacerDialog(updatedWorkflow, onUpdate);
+        dialog.innerHTML = newDialog.innerHTML;
+
+        // Call the update callback
+        if (onUpdate) {
+            onUpdate(updatedWorkflow);
+        }
+    } catch (error) {
+        console.error('Failed to replace input:', error);
+        alert('Failed to replace input: ' + error.message);
+    }
+}
+
 function createReplacerDialog(workflowJson, onUpdate) {
     const nodes = parseWorkflow(workflowJson);
     const existingPlaceholders = findExistingPlaceholders(workflowJson);
@@ -54,35 +84,7 @@ function createReplacerDialog(workflowJson, onUpdate) {
 
     // Add click handlers for Replace buttons
     dialog.querySelectorAll('.input-row button').forEach(button => {
-        button.addEventListener('click', async () => {
-            const nodeId = button.dataset.node;
-            const inputName = button.dataset.input;
-
-            const placeholder = await SillyTavern.getContext().callGenericPopup('Enter a placeholder', SillyTavern.getContext().POPUP_TYPE.INPUT, '');
-
-            if (!placeholder) return;
-
-            try {
-                const updatedWorkflow = replaceInputWithPlaceholder(
-                    workflowJson,
-                    nodeId,
-                    inputName,
-                    placeholder.trim(),
-                );
-
-                // Update the dialog contents
-                const newDialog = createReplacerDialog(updatedWorkflow, onUpdate);
-                dialog.innerHTML = newDialog.innerHTML;
-
-                // Call the update callback
-                if (onUpdate) {
-                    onUpdate(updatedWorkflow);
-                }
-            } catch (error) {
-                console.error('Failed to replace input:', error);
-                alert('Failed to replace input: ' + error.message);
-            }
-        });
+        button.addEventListener('click', () => handleReplace(button, workflowJson, dialog, onUpdate));
     });
 
     return dialog;
