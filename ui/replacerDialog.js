@@ -23,57 +23,12 @@ function createNodeElement(node) {
         nameValue.classList.add('input-name-value', 'whitespacenowrap', 'overflowHidden');
         nameValue.innerHTML = `<code>${name}</code>: <span>${value}</span>`;
 
-        // Replace button
-        const replaceButton = document.createElement('button');
-        replaceButton.classList.add('menu_button');
-        replaceButton.textContent = 'Replace';
-        replaceButton.dataset.node = node.id;
-        replaceButton.dataset.input = name;
-
-        inputRow.append(nameValue, replaceButton);
+        inputRow.append(nameValue);
         inputsContainer.appendChild(inputRow);
     });
 
     nodeEl.append(header, inputsContainer);
     return nodeEl;
-}
-
-async function handleReplace(button, workflowJson, dialog, onUpdate) {
-    const nodeId = button.dataset.node;
-    const inputName = button.dataset.input;
-
-    const placeholder = await SillyTavern.getContext().callGenericPopup('Enter a placeholder', SillyTavern.getContext().POPUP_TYPE.INPUT, '');
-
-    if (!placeholder) return;
-
-    try {
-        const updatedWorkflow = replaceInputWithPlaceholder(
-            workflowJson,
-            nodeId,
-            inputName,
-            placeholder.trim(),
-        );
-
-        // Update the dialog contents while preserving event handlers
-        const newDialog = createReplacerDialog(updatedWorkflow, onUpdate);
-
-        // Replace content while preserving structure
-        dialog.querySelector('.nodes-container').innerHTML = newDialog.querySelector('.nodes-container').innerHTML;
-        dialog.querySelector('.placeholders-container').innerHTML = newDialog.querySelector('.placeholders-container').innerHTML;
-
-        // Reattach event handlers to new buttons
-        dialog.querySelectorAll('.menu_button').forEach(button => {
-            button.addEventListener('click', () => handleReplace(button, updatedWorkflow, dialog, onUpdate));
-        });
-
-        // Call the update callback
-        if (onUpdate) {
-            onUpdate(updatedWorkflow);
-        }
-    } catch (error) {
-        console.error('Failed to replace input:', error);
-        alert('Failed to replace input: ' + error.message);
-    }
 }
 
 function createNodesList(nodes) {
@@ -115,11 +70,6 @@ function createReplacerDialog(workflowJson, onUpdate) {
         placeholderEl.classList.add('placeholder-item');
         placeholderEl.textContent = `%${placeholder}%`;
         placeholdersContainer.appendChild(placeholderEl);
-    });
-
-    // Add click handlers for Replace buttons
-    dialog.querySelectorAll('.menu_button').forEach(button => {
-        button.addEventListener('click', () => handleReplace(button, workflowJson, dialog, onUpdate));
     });
 
     return dialog;
