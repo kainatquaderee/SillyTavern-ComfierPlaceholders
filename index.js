@@ -46,15 +46,18 @@ const defaultSettings = Object.freeze({
 
     renderExtensionSettings();
 
-    // Hook into the workflow editor popup creation
-    const originalShowPopup = Popup.prototype.show;
-    Popup.prototype.show = function(...args) {
-        const result = originalShowPopup.apply(this, args);
-        if (this.element.find('.sd_comfy_workflow_editor').length > 0) {
-            injectReplacerButton();
+    // Watch for workflow editor being added to DOM
+    const observer = new MutationObserver((mutations) => {
+        for (const mutation of mutations) {
+            for (const node of mutation.addedNodes) {
+                if (node instanceof HTMLElement && node.querySelector('.sd_comfy_workflow_editor')) {
+                    injectReplacerButton();
+                }
+            }
         }
-        return result;
-    };
+    });
+
+    observer.observe(document.body, { childList: true, subtree: true });
 
     console.debug(`[${EXTENSION_NAME}]`, 'Extension initialized');
 })();
