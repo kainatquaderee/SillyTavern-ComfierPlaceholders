@@ -15,7 +15,7 @@ async function handleReplacerButtonClick() {
             // Update the workflow editor textarea
             workflowElement.value = updatedWorkflow;
         });
-        await context.callGenericPopup(dialog, context.POPUP_TYPE.TEXT, '', { wide: true, large: true });
+        await context.callGenericPopup(dialog, context.POPUP_TYPE.TEXT, '', { wide: true, large: true, allowVerticalScrolling: true });
     } catch (error) {
         console.error('Failed to parse workflow:', error);
         alert('Failed to parse workflow: ' + error.message);
