@@ -1,5 +1,26 @@
 import { parseWorkflow, findExistingPlaceholders, replaceInputWithPlaceholder } from '../workflow/parser.js';
 
+function createNodeElement(node) {
+    const nodeEl = document.createElement('div');
+    nodeEl.classList.add('node-item');
+    nodeEl.innerHTML = `
+        <div class="node-header">
+            <strong>${node.title}</strong> (${node.class_type})
+        </div>
+        <div class="node-inputs">
+            ${Object.entries(node.inputs).map(([name, value]) => `
+                    <div class="input-row">
+                        <span>${name}: ${value}</span>
+                        <button class="menu_button" data-node="${node.id}" data-input="${name}">
+                            Replace
+                        </button>
+                    </div>
+                `).join('')}
+        </div>
+    `;
+    return nodeEl;
+}
+
 async function handleReplace(button, workflowJson, dialog, onUpdate) {
     const nodeId = button.dataset.node;
     const inputName = button.dataset.input;
@@ -61,24 +82,7 @@ function createReplacerDialog(workflowJson, onUpdate) {
     // Add nodes to the list
     const nodesContainer = dialog.querySelector('.nodes-container');
     nodes.forEach(node => {
-        const nodeEl = document.createElement('div');
-        nodeEl.classList.add('node-item');
-        nodeEl.innerHTML = `
-            <div class="node-header">
-                <strong>${node.title}</strong> (${node.class_type})
-            </div>
-            <div class="node-inputs">
-                ${Object.entries(node.inputs).map(([name, value]) => `
-                        <div class="input-row">
-                            <span>${name}: ${value}</span>
-                            <button class="menu_button" data-node="${node.id}" data-input="${name}">
-                                Replace
-                            </button>
-                        </div>
-                    `).join('')}
-            </div>
-        `;
-        nodesContainer.appendChild(nodeEl);
+        nodesContainer.appendChild(createNodeElement(node));
     });
 
     // Add existing placeholders
