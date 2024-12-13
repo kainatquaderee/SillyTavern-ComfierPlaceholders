@@ -36,6 +36,7 @@ function injectReplacerButton() {
 
         const button = document.createElement('button');
         button.className = 'menu_button';
+        button.id = 'sd_comfy_workflow_editor_replacer_button';
         button.textContent = 'Open Replacer';
         button.style.marginTop = '10px';
         button.addEventListener('click', handleReplacerButtonClick);

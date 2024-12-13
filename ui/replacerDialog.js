@@ -9,11 +9,13 @@ function createNodeElement(node) {
         </div>
         <div class="node-inputs">
             ${Object.entries(node.inputs).map(([name, value]) => `
-                    <div class="input-row">
-                        <span>${name}: ${value}</span>
-                        <button class="menu_button" data-node="${node.id}" data-input="${name}">
+                    <div class="input-row flex-container justifySpaceBetween alignItemsCenter flexNoWrap">
+                      <div class="input-name-value whitespacenowrap overflowHidden">
+                        <code>${name}</code>: <span>${value}</span>
+                      </div>
+                        <div class="menu_button" data-node="${node.id}" data-input="${name}">
                             Replace
-                        </button>
+                        </div>
                     </div>
                 `).join('')}
         </div>
