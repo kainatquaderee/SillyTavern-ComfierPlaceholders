@@ -1,46 +1,41 @@
 import { settingsKey } from '../consts.js';
 
-function createReplacementsTable(settings, context) {
-    const table = document.createElement('table');
-    table.classList.add('replacements-table');
-    table.style.width = '100%';
-    table.innerHTML = `
-        <thead>
-            <tr>
-                <th>Workflow</th>
-                <th>Node Title</th>
-                <th>Node Class</th>
-                <th>Input Name</th>
-                <th>Placeholder</th>
-                <th>Description</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody></tbody>
-    `;
-
-    const tbody = table.querySelector('tbody');
+function createReplacementsList(settings, context) {
+    const container = document.createElement('div');
+    container.classList.add('replacements-list');
+    container.style.display = 'flex';
+    container.style.flexDirection = 'column';
+    container.style.gap = '10px';
 
     function renderReplacements() {
-        tbody.innerHTML = '';
+        container.innerHTML = '';
         settings.replacements.forEach((replacement, index) => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${replacement.workflowName || '(any)'}</td>
-                <td>${replacement.nodeTitle || '(any)'}</td>
-                <td>${replacement.nodeClass || '(any)'}</td>
-                <td>${replacement.inputName || '(any)'}</td>
-                <td>%${replacement.placeholder}%</td>
-                <td>${replacement.description}</td>
-                <td>
+            const card = document.createElement('div');
+            card.classList.add('replacement-card');
+            card.style.border = '1px solid var(--border-color)';
+            card.style.borderRadius = '8px';
+            card.style.padding = '10px';
+            card.style.backgroundColor = 'var(--background-color2)';
+
+            card.innerHTML = `
+                <div style="display: grid; grid-template-columns: auto 1fr; gap: 8px; margin-bottom: 8px;">
+                    <strong>Workflow:</strong> <span>${replacement.workflowName || '(any)'}</span>
+                    <strong>Node Title:</strong> <span>${replacement.nodeTitle || '(any)'}</span>
+                    <strong>Node Class:</strong> <span>${replacement.nodeClass || '(any)'}</span>
+                    <strong>Input Name:</strong> <span>${replacement.inputName || '(any)'}</span>
+                    <strong>Placeholder:</strong> <span>%${replacement.placeholder}%</span>
+                    <strong>Description:</strong> <span>${replacement.description}</span>
+                </div>
+                <div style="text-align: right;">
                     <button class="menu_button" data-index="${index}">Remove</button>
-                </td>
+                </div>
             `;
-            tbody.appendChild(row);
+
+            container.appendChild(card);
         });
 
         // Add event listeners to remove buttons
-        tbody.querySelectorAll('button').forEach(button => {
+        container.querySelectorAll('button').forEach(button => {
             button.addEventListener('click', () => {
                 const index = parseInt(button.dataset.index);
                 settings.replacements.splice(index, 1);
@@ -51,7 +46,7 @@ function createReplacementsTable(settings, context) {
     }
 
     renderReplacements();
-    return { table, renderReplacements };
+    return { container, renderReplacements };
 }
 
 async function showReplacementsDialog() {
@@ -72,8 +67,9 @@ async function showReplacementsDialog() {
     addButton.textContent = 'Add Replacement';
     addButton.style.marginBottom = '1em';
 
-    const { table, renderReplacements } = createReplacementsTable(settings, context);
+    const { container, renderReplacements } = createReplacementsList(settings, context);
 
+    addButton.style.alignSelf = 'flex-start';
     addButton.addEventListener('click', async () => {
         const form = document.createElement('div');
         form.innerHTML = `
@@ -104,7 +100,7 @@ async function showReplacementsDialog() {
         renderReplacements();
     });
 
-    dialog.append(header, addButton, table);
+    dialog.append(header, addButton, container);
     await context.callGenericPopup(dialog, context.POPUP_TYPE.TEXT, '', { wide: true, large: true, allowVerticalScrolling: true, okButton: 'Close' });
 }
 
