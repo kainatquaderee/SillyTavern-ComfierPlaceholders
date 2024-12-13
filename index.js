@@ -14,8 +14,8 @@ TODO list:
 - check for placeholders in the workflow that are not in the list and prompt the user to add them
 */
 
-import { renderExtensionSettings, settingsKey, EXTENSION_NAME } from './ui/settings.js';
-
+import { renderExtensionSettings } from './ui/settings.js';
+import { settingsKey, EXTENSION_NAME } from './consts.js';
 
 /**
  * @type {SillyTavernComfierPlaceholdersSettings}

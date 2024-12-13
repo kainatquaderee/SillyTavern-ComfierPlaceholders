@@ -1,5 +1,6 @@
-const settingsKey = 'SillyTavernComfierPlaceholders';
-const EXTENSION_NAME = 'Comfier Placeholders';
+// noinspection DuplicatedCode
+
+import { settingsKey, EXTENSION_NAME } from '../index.js';
 
 function renderExtensionSettings() {
     const context = SillyTavern.getContext();
