@@ -11,7 +11,10 @@ async function handleReplacerButtonClick() {
     }
 
     try {
-        const dialog = createReplacerDialog(workflowJson);
+        const dialog = createReplacerDialog(workflowJson, (updatedWorkflow) => {
+            // Update the workflow editor textarea
+            workflowElement.value = updatedWorkflow;
+        });
         await context.callGenericPopup(dialog, context.POPUP_TYPE.TEXT, '', { wide: true, large: true });
     } catch (error) {
         console.error('Failed to parse workflow:', error);

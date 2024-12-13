@@ -1,6 +1,6 @@
-import { parseWorkflow, findExistingPlaceholders } from '../workflow/parser.js';
+import { parseWorkflow, findExistingPlaceholders, replaceInputWithPlaceholder } from '../workflow/parser.js';
 
-function createReplacerDialog(workflowJson) {
+function createReplacerDialog(workflowJson, onUpdate) {
     const nodes = parseWorkflow(workflowJson);
     const existingPlaceholders = findExistingPlaceholders(workflowJson);
 
@@ -50,6 +50,44 @@ function createReplacerDialog(workflowJson) {
         placeholderEl.classList.add('placeholder-item');
         placeholderEl.textContent = `%${placeholder}%`;
         placeholdersContainer.appendChild(placeholderEl);
+    });
+
+    // Add click handlers for Replace buttons
+    dialog.querySelectorAll('.input-row button').forEach(button => {
+        button.addEventListener('click', async () => {
+            const nodeId = button.dataset.node;
+            const inputName = button.dataset.input;
+            
+            const placeholder = await SillyTavern.getContext().callPopup(
+                '<h3>Enter placeholder name:</h3>' +
+                '<input type="text" id="placeholder_input" style="width: 100%">' +
+                '<br><br><i>Do not include % symbols</i>', 
+                'input'
+            );
+
+            if (!placeholder) return;
+
+            try {
+                const updatedWorkflow = replaceInputWithPlaceholder(
+                    workflowJson,
+                    nodeId,
+                    inputName,
+                    placeholder.trim()
+                );
+                
+                // Update the dialog contents
+                const newDialog = createReplacerDialog(updatedWorkflow, onUpdate);
+                dialog.innerHTML = newDialog.innerHTML;
+
+                // Call the update callback
+                if (onUpdate) {
+                    onUpdate(updatedWorkflow);
+                }
+            } catch (error) {
+                console.error('Failed to replace input:', error);
+                alert('Failed to replace input: ' + error.message);
+            }
+        });
     });
 
     return dialog;
