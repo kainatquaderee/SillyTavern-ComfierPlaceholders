@@ -49,92 +49,92 @@ const defaultSettings = Object.freeze({
         {
             workflowName: null,
             nodeTitle: null,
-            nodeClass: "KSampler",
-            inputName: "seed",
-            placeholder: "seed",
-            description: "Random seed for sampling"
+            nodeClass: 'KSampler',
+            inputName: 'seed',
+            placeholder: 'seed',
+            description: 'Random seed for sampling',
         },
         {
             workflowName: null,
             nodeTitle: null,
-            nodeClass: "KSampler",
-            inputName: "steps",
-            placeholder: "steps", 
-            description: "Number of sampling steps"
+            nodeClass: 'KSampler',
+            inputName: 'steps',
+            placeholder: 'steps',
+            description: 'Number of sampling steps',
         },
         {
             workflowName: null,
             nodeTitle: null,
-            nodeClass: "KSampler",
-            inputName: "cfg",
-            placeholder: "scale",
-            description: "CFG scale value"
+            nodeClass: 'KSampler',
+            inputName: 'cfg',
+            placeholder: 'scale',
+            description: 'CFG scale value',
         },
         {
             workflowName: null,
             nodeTitle: null,
-            nodeClass: "KSampler",
-            inputName: "sampler_name",
-            placeholder: "sampler",
-            description: "Sampling algorithm"
+            nodeClass: 'KSampler',
+            inputName: 'sampler_name',
+            placeholder: 'sampler',
+            description: 'Sampling algorithm',
         },
         {
             workflowName: null,
             nodeTitle: null,
-            nodeClass: "KSampler",
-            inputName: "scheduler",
-            placeholder: "scheduler",
-            description: "Scheduler algorithm"
+            nodeClass: 'KSampler',
+            inputName: 'scheduler',
+            placeholder: 'scheduler',
+            description: 'Scheduler algorithm',
         },
         {
             workflowName: null,
             nodeTitle: null,
-            nodeClass: "KSampler",
-            inputName: "denoise",
-            placeholder: "denoise",
-            description: "Denoising strength"
+            nodeClass: 'KSampler',
+            inputName: 'denoise',
+            placeholder: 'denoise',
+            description: 'Denoising strength',
         },
         {
             workflowName: null,
             nodeTitle: null,
-            nodeClass: "CheckpointLoaderSimple",
-            inputName: "ckpt_name",
-            placeholder: "model",
-            description: "Model checkpoint name"
+            nodeClass: 'CheckpointLoaderSimple',
+            inputName: 'ckpt_name',
+            placeholder: 'model',
+            description: 'Model checkpoint name',
         },
         {
             workflowName: null,
             nodeTitle: null,
-            nodeClass: "CLIPTextEncode",
-            inputName: "text",
-            placeholder: "prompt",
-            description: "Main prompt text"
+            nodeClass: 'CLIPTextEncode',
+            inputName: 'text',
+            placeholder: 'prompt',
+            description: 'Main prompt text',
         },
         {
             workflowName: null,
             nodeTitle: null,
-            nodeClass: "EmptyLatentImage",
-            inputName: "width",
-            placeholder: "width",
-            description: "Image width"
+            nodeClass: 'EmptyLatentImage',
+            inputName: 'width',
+            placeholder: 'width',
+            description: 'Image width',
         },
         {
             workflowName: null,
             nodeTitle: null,
-            nodeClass: "EmptyLatentImage", 
-            inputName: "height",
-            placeholder: "height",
-            description: "Image height"
+            nodeClass: 'EmptyLatentImage',
+            inputName: 'height',
+            placeholder: 'height',
+            description: 'Image height',
         },
         {
             workflowName: null,
-            nodeTitle: "CLIP Text Encode (Negative Prompt)",
-            nodeClass: "CLIPTextEncode",
-            inputName: "text",
-            placeholder: "negative_prompt",
-            description: "Negative prompt text"
-        }
-    ]
+            nodeTitle: 'CLIP Text Encode (Negative Prompt)',
+            nodeClass: 'CLIPTextEncode',
+            inputName: 'text',
+            placeholder: 'negative_prompt',
+            description: 'Negative prompt text',
+        },
+    ],
 });
 
 
