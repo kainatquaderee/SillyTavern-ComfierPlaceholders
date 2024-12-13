@@ -27,7 +27,7 @@ import { settingsKey, EXTENSION_NAME } from './consts.js';
 import { injectReplacerButton } from './ui/workflowEditor.js';
 
 /**
- * @typedef {Object} ReplacementFilter
+ * @typedef {Object} ReplacementRule
  * @property {string|null} workflowName - Name of the workflow, or null for any workflow
  * @property {string|null} nodeTitle - Title of the node, or null for any node
  * @property {string|null} nodeClass - Class type of the node, or null for any class
@@ -40,7 +40,7 @@ import { injectReplacerButton } from './ui/workflowEditor.js';
  * @type {SillyTavernComfierPlaceholdersSettings}
  * @typedef {Object} SillyTavernComfierPlaceholdersSettings
  * @property {boolean} enabled Whether the extension is enabled
- * @property {ReplacementFilter[]} replacements List of replacement filters
+ * @property {ReplacementRule[]} replacements List of replacement rules
  */
 const defaultSettings = Object.freeze({
     enabled: true,
