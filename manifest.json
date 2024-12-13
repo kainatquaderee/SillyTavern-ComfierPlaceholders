@@ -5,6 +5,7 @@
   "author": "ceruleandeep <cerulean@cerulean.foo>",
   "license": "AGPL-3.0",
   "js": "index.js",
+  "css": "comfier.css",
   "loading_order": 10,
   "homepage": "https://github.com/ceruleandeep/SillyTavern-ComfierPlaceholders"
 }
