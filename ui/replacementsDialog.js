@@ -105,7 +105,7 @@ async function showReplacementsDialog() {
     });
 
     dialog.append(header, addButton, table);
-    await context.callGenericPopup(dialog, context.POPUP_TYPE.CUSTOM);
+    await context.callGenericPopup(dialog, context.POPUP_TYPE.TEXT, '', { wide: true, large: true, allowVerticalScrolling: true, okButton: 'Close' });
 }
 
 export { showReplacementsDialog };
