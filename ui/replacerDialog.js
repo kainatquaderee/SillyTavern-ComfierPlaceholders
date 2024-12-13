@@ -42,7 +42,8 @@ function createInputElement(id, name, nodeInput) {
     } else if (nodeInput.placeholder === '') {
         actionButton.classList.add('no-rule');
         actionButton.textContent = 'Add Rule';
-        actionButton.addEventListener('click', async () => {
+        actionButton.addEventListener('click', async function() {
+            const node = this.closest('.node-item').nodeInfo;
             const workflowElement = document.getElementById('sd_comfy_workflow_editor_workflow');
             const workflowName = workflowElement?.dataset?.workflowName || null;
             const newRule = await showReplacementRuleDialog({
@@ -133,6 +134,7 @@ function createNodeElement(node) {
         inputsContainer.appendChild(createInputElement(node.id, name, nodeInput));
     });
 
+    nodeEl.nodeInfo = node;  // Store node info for later use
     nodeEl.append(header, inputsContainer);
     return nodeEl;
 }
