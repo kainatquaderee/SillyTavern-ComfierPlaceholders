@@ -3,23 +3,38 @@ import { parseWorkflow, findExistingPlaceholders, replaceInputWithPlaceholder } 
 function createNodeElement(node) {
     const nodeEl = document.createElement('div');
     nodeEl.classList.add('node-item');
-    nodeEl.innerHTML = `
-        <div class="node-header">
-            <strong>${node.title}</strong> (${node.class_type})
-        </div>
-        <div class="node-inputs">
-            ${Object.entries(node.inputs).map(([name, value]) => `
-                    <div class="input-row flex-container justifySpaceBetween alignItemsCenter flexNoWrap">
-                      <div class="input-name-value whitespacenowrap overflowHidden">
-                        <code>${name}</code>: <span>${value}</span>
-                      </div>
-                        <div class="menu_button" data-node="${node.id}" data-input="${name}">
-                            Replace
-                        </div>
-                    </div>
-                `).join('')}
-        </div>
-    `;
+    
+    // Create header
+    const header = document.createElement('div');
+    header.classList.add('node-header');
+    header.innerHTML = `<strong>${node.title}</strong> (${node.class_type})`;
+    
+    // Create inputs container
+    const inputsContainer = document.createElement('div');
+    inputsContainer.classList.add('node-inputs');
+    
+    // Add each input
+    Object.entries(node.inputs).forEach(([name, value]) => {
+        const inputRow = document.createElement('div');
+        inputRow.classList.add('input-row', 'flex-container', 'justifySpaceBetween', 'alignItemsCenter', 'flexNoWrap');
+        
+        // Input name and value
+        const nameValue = document.createElement('div');
+        nameValue.classList.add('input-name-value', 'whitespacenowrap', 'overflowHidden');
+        nameValue.innerHTML = `<code>${name}</code>: <span>${value}</span>`;
+        
+        // Replace button
+        const replaceButton = document.createElement('div');
+        replaceButton.classList.add('menu_button');
+        replaceButton.textContent = 'Replace';
+        replaceButton.dataset.node = node.id;
+        replaceButton.dataset.input = name;
+        
+        inputRow.append(nameValue, replaceButton);
+        inputsContainer.appendChild(inputRow);
+    });
+    
+    nodeEl.append(header, inputsContainer);
     return nodeEl;
 }
 
