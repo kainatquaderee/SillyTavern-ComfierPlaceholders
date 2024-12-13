@@ -23,7 +23,7 @@ function parseWorkflow(workflowJson) {
             id: nodeId,
             title: node._meta?.title || 'Untitled',
             class_type: node.class_type,
-            inputs: {}
+            inputs: {},
         };
 
         // Only include non-node inputs (nodes are referenced by array [nodeId, outputIndex])
