@@ -1,5 +1,5 @@
 import { parseWorkflow, replaceInputWithPlaceholder } from '../workflow/parser.js';
-import { EXTENSION_NAME } from '../consts.js';
+import { EXTENSION_NAME, settingsKey } from '../consts.js';
 import { showReplacementRuleDialog } from './replacementRuleDialog.js';
 
 function onInputReplaceClick(target, id, name, nodeInput) {
@@ -42,6 +42,36 @@ function createInputElement(id, name, nodeInput) {
     } else if (nodeInput.placeholder === '') {
         actionButton.classList.add('no-rule');
         actionButton.textContent = 'Add Rule';
+        actionButton.addEventListener('click', async () => {
+            const workflowElement = document.getElementById('sd_comfy_workflow_editor_workflow');
+            const workflowName = workflowElement?.dataset?.workflowName || null;
+            const newRule = await showReplacementRuleDialog({
+                workflowName,
+                nodeTitle: node.title,
+                nodeClass: node.class_type,
+                inputName: name,
+                placeholder: '',
+                description: ''
+            });
+            
+            if (newRule) {
+                const context = SillyTavern.getContext();
+                const settings = context.extensionSettings[settingsKey];
+                settings.replacements.push(newRule);
+                context.saveSettingsDebounced();
+                
+                // Update button state
+                actionButton.classList.remove('no-rule');
+                actionButton.classList.add('can-replace');
+                actionButton.textContent = 'Replace';
+                nodeInput.placeholder = newRule.placeholder;
+                
+                // Add click handler for replacement
+                actionButton.addEventListener('click', (e) => {
+                    onInputReplaceClick(e.target, id, name, nodeInput);
+                });
+            }
+        });
     } else {
         actionButton.classList.add('can-replace');
         actionButton.textContent = 'Replace';
