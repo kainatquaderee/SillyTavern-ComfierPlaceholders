@@ -61,6 +61,15 @@ async function handleReplace(button, workflowJson, dialog, onUpdate) {
     }
 }
 
+function createNodesList(nodes) {
+    const nodesContainer = document.createElement('div');
+    nodesContainer.classList.add('nodes-container');
+    nodes.forEach(node => {
+        nodesContainer.appendChild(createNodeElement(node));
+    });
+    return nodesContainer;
+}
+
 function createReplacerDialog(workflowJson, onUpdate) {
     const nodes = parseWorkflow(workflowJson);
     const existingPlaceholders = findExistingPlaceholders(workflowJson);
@@ -72,7 +81,6 @@ function createReplacerDialog(workflowJson, onUpdate) {
         <div class="replacer-content">
             <div class="nodes-list">
                 <h4>Nodes</h4>
-                <div class="nodes-container"></div>
             </div>
             <div class="placeholders-list">
                 <h4>Current Placeholders</h4>
@@ -82,10 +90,8 @@ function createReplacerDialog(workflowJson, onUpdate) {
     `;
 
     // Add nodes to the list
-    const nodesContainer = dialog.querySelector('.nodes-container');
-    nodes.forEach(node => {
-        nodesContainer.appendChild(createNodeElement(node));
-    });
+    const nodesContainer = createNodesList(nodes);
+    dialog.querySelector('.nodes-list').appendChild(nodesContainer);
 
     // Add existing placeholders
     const placeholdersContainer = dialog.querySelector('.placeholders-container');
