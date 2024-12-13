@@ -24,7 +24,7 @@ function createNodeElement(node) {
         nameValue.innerHTML = `<code>${name}</code>: <span>${value}</span>`;
 
         // Replace button
-        const replaceButton = document.createElement('div');
+        const replaceButton = document.createElement('button');
         replaceButton.classList.add('menu_button');
         replaceButton.textContent = 'Replace';
         replaceButton.dataset.node = node.id;
@@ -62,7 +62,7 @@ async function handleReplace(button, workflowJson, dialog, onUpdate) {
         dialog.querySelector('.placeholders-container').innerHTML = newDialog.querySelector('.placeholders-container').innerHTML;
 
         // Reattach event handlers to new buttons
-        dialog.querySelectorAll('.input-row button').forEach(button => {
+        dialog.querySelectorAll('.menu_button').forEach(button => {
             button.addEventListener('click', () => handleReplace(button, updatedWorkflow, dialog, onUpdate));
         });
 
@@ -118,7 +118,7 @@ function createReplacerDialog(workflowJson, onUpdate) {
     });
 
     // Add click handlers for Replace buttons
-    dialog.querySelectorAll('.input-row button').forEach(button => {
+    dialog.querySelectorAll('.menu_button').forEach(button => {
         button.addEventListener('click', () => handleReplace(button, workflowJson, dialog, onUpdate));
     });
 
