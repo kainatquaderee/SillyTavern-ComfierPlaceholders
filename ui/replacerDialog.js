@@ -16,9 +16,17 @@ async function handleReplace(button, workflowJson, dialog, onUpdate) {
             placeholder.trim(),
         );
 
-        // Update the dialog contents
+        // Update the dialog contents while preserving event handlers
         const newDialog = createReplacerDialog(updatedWorkflow, onUpdate);
-        dialog.innerHTML = newDialog.innerHTML;
+
+        // Replace content while preserving structure
+        dialog.querySelector('.nodes-container').innerHTML = newDialog.querySelector('.nodes-container').innerHTML;
+        dialog.querySelector('.placeholders-container').innerHTML = newDialog.querySelector('.placeholders-container').innerHTML;
+
+        // Reattach event handlers to new buttons
+        dialog.querySelectorAll('.input-row button').forEach(button => {
+            button.addEventListener('click', () => handleReplace(button, updatedWorkflow, dialog, onUpdate));
+        });
 
         // Call the update callback
         if (onUpdate) {
