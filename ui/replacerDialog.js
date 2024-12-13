@@ -57,13 +57,8 @@ function createReplacerDialog(workflowJson, onUpdate) {
         button.addEventListener('click', async () => {
             const nodeId = button.dataset.node;
             const inputName = button.dataset.input;
-            
-            const placeholder = await SillyTavern.getContext().callPopup(
-                '<h3>Enter placeholder name:</h3>' +
-                '<input type="text" id="placeholder_input" style="width: 100%">' +
-                '<br><br><i>Do not include % symbols</i>', 
-                'input'
-            );
+
+            const placeholder = await SillyTavern.getContext().callGenericPopup('Enter a placeholder', SillyTavern.getContext().POPUP_TYPE.INPUT, '');
 
             if (!placeholder) return;
 
@@ -72,9 +67,9 @@ function createReplacerDialog(workflowJson, onUpdate) {
                     workflowJson,
                     nodeId,
                     inputName,
-                    placeholder.trim()
+                    placeholder.trim(),
                 );
-                
+
                 // Update the dialog contents
                 const newDialog = createReplacerDialog(updatedWorkflow, onUpdate);
                 dialog.innerHTML = newDialog.innerHTML;
