@@ -2,6 +2,8 @@ import { createReplacerDialog } from './replacerDialog.js';
 import { replaceAllPlaceholders } from '../workflow/parser.js';
 import { EXTENSION_NAME } from '../consts.js';
 
+const t = SillyTavern.getContext().t;
+
 async function handleReplacerButtonClick() {
     const context = SillyTavern.getContext();
     const workflowElement = document.getElementById('sd_comfy_workflow_editor_workflow');
@@ -54,24 +56,32 @@ function injectReplacerButton() {
         }
 
         const replacerSection = document.createElement('div');
-        replacerSection.classList.add('sd_comfy_workflow_editor_replacer_section', 'flex-container', 'justifyCenter', 'alignItemsCenter');
+        replacerSection.classList.add('sd_comfy_workflow_editor_replacer_section', 'flex-container', 'flexFlowColumn', 'alignItemsCenter');
 
         const replacerButton = document.createElement('button');
-        replacerButton.classList.add('menu_button', 'whitespacenowrap');
+        replacerButton.classList.add('menu_button', 'menu_button_icon', 'whitespacenowrap');
         replacerButton.id = 'sd_comfy_workflow_editor_replacer_button';
-        replacerButton.textContent = 'Open Replacer';
-        replacerButton.style.marginTop = '10px';
+        const icon = document.createElement('i');
+        icon.classList.add('fas', 'fa-exchange-alt');
+        replacerButton.appendChild(icon);
+        const text = document.createElement('span');
+        text.textContent = t`Replace...`;
+        replacerButton.appendChild(text);
         replacerButton.addEventListener('click', handleReplacerButtonClick);
 
         const zapButton = document.createElement('button');
-        zapButton.classList.add('menu_button', 'whitespacenowrap');
+        zapButton.classList.add('menu_button', 'menu_button_icon', 'whitespacenowrap');
         zapButton.id = 'sd_comfy_workflow_editor_zap_button';
-        zapButton.textContent = 'Replace all';
-        zapButton.style.marginTop = '10px';
+        const zapIcon = document.createElement('i');
+        zapIcon.classList.add('fas', 'fa-bolt');
+        zapButton.appendChild(zapIcon);
+        const zapText = document.createElement('span');
+        zapText.textContent = t`Replace all`;
+        zapButton.appendChild(zapText);
         zapButton.addEventListener('click', handleZapButtonClick);
 
-        replacerSection.appendChild(replacerButton);
         replacerSection.appendChild(zapButton);
+        replacerSection.appendChild(replacerButton);
         container.appendChild(replacerSection);
     }, 100);
 }

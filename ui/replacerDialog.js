@@ -2,7 +2,15 @@ import { parseWorkflow, replaceInputWithPlaceholder } from '../workflow/parser.j
 import { EXTENSION_NAME, settingsKey } from '../consts.js';
 import { showReplacementRuleDialog } from './replacementRuleDialog.js';
 
-function onInputReplaceClick(target, id, name, nodeInput) {
+/**
+ * Replace an input value with a placeholder
+ * @param {MouseEvent} event
+ * @param id
+ * @param name
+ * @param nodeInput
+ */
+function onInputReplaceClick(event, id, name, nodeInput) {
+    const target = event.target;
     console.log(`[${EXTENSION_NAME}] Replace input`, id, name, nodeInput.placeholder);
     // Replace input value with placeholder
     try {
@@ -15,6 +23,12 @@ function onInputReplaceClick(target, id, name, nodeInput) {
         target.disabled = true;
         target.classList.add('disabled');
         target.textContent = 'Replaced';
+        nodeInput.value = `%${nodeInput.placeholder}%`;
+        // update the input value in the UI
+        const inputRow = target.closest('.input-row');
+        const inputValue = inputRow.querySelector('.input-value');
+        inputValue.textContent = nodeInput.value;
+
     } catch (error) {
         console.error('Failed to replace input:', error);
         toastr.error(error.message, 'Failed to replace input');
@@ -51,8 +65,8 @@ function createInputElement(id, name, nodeInput) {
                 nodeTitle: node.title,
                 nodeClass: node.class_type,
                 inputName: name,
-                placeholder: '',
-                description: '',
+                placeholder: name,
+                description: `${node.title} ${name}`,
             });
 
             if (newRule) {
@@ -66,11 +80,12 @@ function createInputElement(id, name, nodeInput) {
                 actionButton.classList.add('can-replace');
                 actionButton.textContent = 'Replace';
                 nodeInput.placeholder = newRule.placeholder;
+                inputPlaceholder.textContent = newRule.placeholder;
 
                 // Remove old handler and add new one for replacement
                 actionButton.removeEventListener('click', addRuleHandler);
                 actionButton.addEventListener('click', (e) => {
-                    onInputReplaceClick(e.target, id, name, nodeInput);
+                    onInputReplaceClick(e, id, name, nodeInput);
                 });
             }
         };
@@ -79,7 +94,7 @@ function createInputElement(id, name, nodeInput) {
         actionButton.classList.add('can-replace');
         actionButton.textContent = 'Replace';
         actionButton.addEventListener('click', (e) => {
-            onInputReplaceClick(e.target, id, name, nodeInput);
+            onInputReplaceClick(e, id, name, nodeInput);
         });
     }
 
@@ -93,10 +108,11 @@ function createInputElement(id, name, nodeInput) {
 
     const inputValue = document.createElement('span');
     inputValue.textContent = nodeInput.value;
+    inputValue.classList.add('input-value');
 
     const inputPlaceholder = document.createElement('code');
     inputPlaceholder.textContent = nodeInput.placeholder;
-    inputPlaceholder.classList.add('placeholder');
+    inputPlaceholder.classList.add('input-placeholder');
 
     nameValue.append(inputName, inputValue, inputPlaceholder);
     inputRow.append(actionButton, nameValue);
