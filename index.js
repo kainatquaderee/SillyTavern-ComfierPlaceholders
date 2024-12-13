@@ -16,6 +16,7 @@ TODO list:
 
 import { renderExtensionSettings } from './ui/settings.js';
 import { settingsKey, EXTENSION_NAME } from './consts.js';
+import { injectReplacerButton } from './ui/workflowEditor.js';
 
 /**
  * @type {SillyTavernComfierPlaceholdersSettings}
@@ -44,6 +45,16 @@ const defaultSettings = Object.freeze({
     context.saveSettingsDebounced();
 
     renderExtensionSettings();
+
+    // Hook into the workflow editor popup creation
+    const originalShowPopup = Popup.prototype.show;
+    Popup.prototype.show = function(...args) {
+        const result = originalShowPopup.apply(this, args);
+        if (this.element.find('.sd_comfy_workflow_editor').length > 0) {
+            injectReplacerButton();
+        }
+        return result;
+    };
 
     console.debug(`[${EXTENSION_NAME}]`, 'Extension initialized');
 })();
