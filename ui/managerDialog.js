@@ -109,8 +109,6 @@ function createReplacementCard(replacement, index, onEditButtonClick, onRemoveBu
     return card;
 }
 
-
-
 function createReplacementsList() {
     const context = SillyTavern.getContext();
     const settings = context.extensionSettings[settingsKey];
@@ -141,14 +139,14 @@ async function showManagerDialog() {
 
     const dialog = document.createElement('div');
     dialog.classList.add('replacements-dialog');
-    // dialog.style.maxWidth = '800px';
-    // dialog.style.width = '100%';
 
     const header = document.createElement('div');
     header.style.marginBottom = '1em';
-    header.innerHTML = '<h3>Manage Replacements</h3>';
+    const h3 = document.createElement('h3');
+    h3.textContent = t`Manage replacements`;
+    header.appendChild(h3);
 
-    const addButton = iconButton('Add rule', 'plus');
+    const addButton = iconButton(t`Add rule`, 'plus');
 
     const { container, renderReplacements } = createReplacementsList();
 

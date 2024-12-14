@@ -3,7 +3,7 @@ import { icon } from './icon.js';
 /**
  * Create an icon
  *
- * @param {string} textContent
+ * @param {string} textContent - Caller expected to have run this through SillyTavern.getContext().t
  * @param {string} faClass
  * @param {boolean} srOnly
  * @returns {HTMLButtonElement}

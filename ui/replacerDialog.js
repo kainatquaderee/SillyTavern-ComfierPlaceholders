@@ -44,7 +44,7 @@ async function onAddRuleClick(actionButton) {
     const nodeInputInfo = inputRow.nodeInputInfo;
     const inputName = nodeInputInfo.name;
 
-    const node = this.closest('.node-item').nodeInfo;
+    const node = this.closest('.node-card').nodeInfo;
     const workflowElement = document.getElementById('sd_comfy_workflow_editor_workflow');
     const workflowName = document.getElementById('sd_comfy_workflow_editor_name')?.textContent;
 
@@ -62,7 +62,7 @@ async function onAddRuleClick(actionButton) {
     if (newRule) {
         const context = SillyTavern.getContext();
         const settings = context.extensionSettings[settingsKey];
-        const nodeId = inputRow.closest('.node-item').nodeInfo.id;
+        const nodeId = inputRow.closest('.node-card').nodeInfo.id;
         settings.replacements.push(newRule);
         context.saveSettingsDebounced();
 
@@ -93,7 +93,6 @@ function createInputElement(nodeId, inputName, nodeInputInfo) {
     const inputRow = document.createElement('div');
     Object.assign(inputRow, { nodeInputInfo });
 
-    // , 'flex-container', 'gap10', 'alignItemsCenter'
     inputRow.classList.add('input-row', 'flex-container', 'alignItemsCenter');
 
     const actionButton = document.createElement('button');
@@ -156,27 +155,30 @@ function createInputElement(nodeId, inputName, nodeInputInfo) {
 
 /**
  * Create an element
- * @param {NodeInfo} node
+ * @param {NodeInfo} nodeInfo
  * @returns {HTMLDivElement}
  */
-function createNodeElement(node) {
-    const nodeEl = document.createElement('div');
-    //  flex-container flexFlowColumn flexGap10 alignItemsStart
-
-    nodeEl.classList.add('node-item');
+function createNodeElement(nodeInfo) {
+    const nodeCard = document.createElement('div');
+    nodeCard.classList.add('node-card');
+    nodeCard.style.border = '1px solid #666';
+    nodeCard.style.borderRadius = '8px';
+    nodeCard.style.padding = '10px';
+    nodeCard.style.marginBottom = '10px';
+    nodeCard.style.backgroundColor = '--SmartThemeBodyColor)';
 
     // Create header
     const header = document.createElement('div');
-    // , 'flex-container', 'gap10', 'alignItemsCenter'
     header.classList.add('node-header');
     const title = document.createElement('h4');
-    title.textContent = node.title;
+    title.textContent = nodeInfo.title;
     title.classList.add('node-title');
     header.appendChild(title);
-    if (node.title !== node.class_type) {
+
+    if (nodeInfo.title !== nodeInfo.class_type) {
         const subtitle = document.createElement('i');
-        subtitle.textContent = node.class_type;
-        subtitle.classList.add('node-subtitle');
+        subtitle.textContent = nodeInfo.class_type;
+        subtitle.classList.add('node-subtitle', 'small');
         header.appendChild(subtitle);
     }
 
@@ -185,21 +187,22 @@ function createNodeElement(node) {
     inputsContainer.classList.add('node-inputs');
 
     // Add each input
-    console.log(`[${EXTENSION_NAME}] Node:`, node, 'Inputs:', node.inputs);
-    Object.entries(node.inputs).forEach(([name, nodeInput]) => {
-        inputsContainer.appendChild(createInputElement(node.id, name, nodeInput));
+    console.log(`[${EXTENSION_NAME}] Node:`, nodeInfo, 'Inputs:', nodeInfo.inputs);
+    Object.entries(nodeInfo.inputs).forEach(([name, nodeInput]) => {
+        inputsContainer.appendChild(createInputElement(nodeInfo.id, name, nodeInput));
     });
 
-    nodeEl.nodeInfo = node;  // Store node info for later use
-    nodeEl.append(header, inputsContainer);
-    return nodeEl;
+    nodeCard.nodeInfo = nodeInfo;  // Store node info for later use
+    nodeCard.append(header, inputsContainer);
+    return nodeCard;
 }
 
 function createNodesList(nodes) {
     const nodesContainer = document.createElement('div');
     nodesContainer.classList.add('nodes-list-block');
-    const h4 = document.createElement('h4');
-    h4.textContent = 'Nodes';
+    // const h4 = document.createElement('h4');
+    // h4.textContent = 'Nodes';
+
     const nodesList = document.createElement('div');
     nodesList.classList.add('nodes-list');
 
@@ -207,7 +210,7 @@ function createNodesList(nodes) {
     nodes.filter(node => Object.keys(node.inputs).length > 0).forEach(node => {
         nodesList.appendChild(createNodeElement(node));
     });
-    nodesContainer.append(h4, nodesList);
+    nodesContainer.append(nodesList);
     return nodesContainer;
 }
 
