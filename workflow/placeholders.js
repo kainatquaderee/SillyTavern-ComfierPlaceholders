@@ -11,6 +11,18 @@ import { EXTENSION_NAME } from '../consts.js';
 
 
 /**
+ * Get all available placeholders as options
+ * @returns {Record<string,string>} Placeholder options
+ */
+function getPlaceholderOptions() {
+    const rulesPlaceholders = getCurrentPlaceholders();
+    return Object.entries(rulesPlaceholders).sort().reduce((acc, [key, value]) => {
+        acc[key] = key;
+        return acc;
+    }, {});
+}
+
+/**
  * Get the current placeholders in the workflow editor
  *
  * @returns {Record<string,PlaceholderInfo>} Placeholder info
@@ -24,6 +36,7 @@ function getCurrentPlaceholders() {
         const present = workflow.search(`"%${key}%"`) !== -1;
         placeholders[key] = {
             find: key,
+            value: key, // for compatibility with the replacement rule dialog
             replace: null,
             custom: false,
             present,
@@ -67,4 +80,4 @@ function makePlaceholderInfo(args) {
     };
 }
 
-export { getCurrentPlaceholders };
+export { getCurrentPlaceholders, getPlaceholderOptions, makePlaceholderInfo };

@@ -1,4 +1,41 @@
-import { getCurrentPlaceholders } from '../workflow/placeholders.js';
+import { getPlaceholderOptions } from '../workflow/placeholders.js';
+import { availableWorkflows } from '../workflow/workflows.js';
+import { EXTENSION_NAME } from '../consts.js';
+
+const t = SillyTavern.getContext().t;
+
+
+function onPlaceholderSelectChange(form) {
+    const placeholderSelect = form.querySelector('#placeholderSelect');
+    const placeholderInput = form.querySelector('#placeholderName');
+    const label = placeholderInput.closest('label');
+    const selected = placeholderSelect.value;
+    if (selected) {
+        console.log(`[${EXTENSION_NAME}]`, 'Selected placeholder', selected, placeholderSelect, placeholderInput);
+        placeholderInput.style.display = 'none';
+        label.style.display = 'none';
+    } else {
+        console.log(`[${EXTENSION_NAME}]`, 'Custom placeholder', placeholderSelect, placeholderInput);
+        placeholderInput.style.display = '';
+        label.style.display = '';
+    }
+}
+
+function onWorkflowSelectChange(form) {
+    const workflowSelect = form.querySelector('#workflowSelect');
+    const workflowName = form.querySelector('#workflowName');
+    const label = workflowName.closest('label');
+    const selected = workflowSelect.value;
+    if (selected) {
+        console.log(`[${EXTENSION_NAME}]`, 'Selected workflow', selected, workflowSelect, workflowName);
+        workflowName.style.display = 'none';
+        label.style.display = 'none';
+    } else {
+        console.log(`[${EXTENSION_NAME}]`, 'Custom workflow', workflowSelect, workflowName);
+        workflowName.style.display = '';
+        label.style.display = '';
+    }
+}
 
 /**
  * Show a dialog to add or edit a replacement rule
@@ -7,66 +44,61 @@ import { getCurrentPlaceholders } from '../workflow/placeholders.js';
  */
 async function showReplacementRuleDialog(existingRule = null) {
     const context = SillyTavern.getContext();
-    const rulesPlaceholders = Object.keys(getCurrentPlaceholders());
-    rulesPlaceholders.sort();
 
     const form = document.createElement('div');
-    // form.innerHTML = `
-    //     <div class="flex-container flexFlowColumn">
-    //         <label>Workflow Name<input type="text" id="workflowName" class="text_pole optional"></label>
-    //         <label>Node Title<input type="text" id="nodeTitle" class="text_pole optional"></label>
-    //         <label>Node Class<input type="text" id="nodeClass" class="text_pole optional"></label>
-    //         <label>Input Name<input type="text" id="inputName" class="text_pole"></label>
-    //         <label>Placeholder:
-    //             <div class="flex-container">
-    //                 <select id="placeholderSelect" class="text_pole">
-    //                     <option value="">-- New Placeholder --</option>
-    //                     ${Array.from(rulesPlaceholders).map(p => `<option value="${p}">${p}</option>`).join('')}
-    //                 </select>
-    //                 <input type="text" id="placeholder" required class="text_pole" style="display: none;">
-    //             </div>
-    //         </label>
-    //         <label>Description:<input type="text" id="description" required class="text_pole"></label>
-    //     </div>
-    // `;
+    form.classList.add('replacement-rule-dialog');
 
     function textInput(inputId, labelText) {
-        const label = document.createElement('label');
-        label.textContent = labelText;
         const input = document.createElement('input');
         input.id = inputId;
         input.type = 'text';
         input.classList.add('text_pole', 'optional');
+        const label = document.createElement('label');
+        label.textContent = labelText;
         label.appendChild(input);
         return label;
     }
 
+    /**
+     * Create a select input
+     * @param inputId
+     * @param labelText
+     * @param {Record<string,string>} options
+     * @returns {(HTMLLabelElement|HTMLSelectElement)[]}
+     */
     function selectInput(inputId, labelText, options) {
         const label = document.createElement('label');
         label.textContent = labelText;
         const select = document.createElement('select');
         select.id = inputId;
         select.classList.add('text_pole');
-        options.forEach(option => {
-            const optionElement = document.createElement('option');
-            optionElement.value = option;
-            optionElement.textContent = option;
-            select.appendChild(optionElement);
-        });
+        for (const [value, text] of Object.entries(options)) {
+            const option = document.createElement('option');
+            option.value = value;
+            option.textContent = text;
+            select.appendChild(option);
+        }
         label.appendChild(select);
-        return label;
+        return [label, select];
     }
 
+
+    const workflowNames = availableWorkflows();
+    const workflowOptions = { '': t`[New Workflow]`, ...workflowNames };
+
+    const rulesPlaceholders = getPlaceholderOptions();
+    const placeholderOptions = { '': t`[Custom]`, ...rulesPlaceholders };
+
+    const [workflowDropdown, workflowSelect] = selectInput('workflowSelect', 'Workflow Name', workflowOptions);
     const workflowName = textInput('workflowName', 'Workflow Name');
     const nodeTitle = textInput('nodeTitle', 'Node Title');
     const nodeClass = textInput('nodeClass', 'Node Class');
     const inputName = textInput('inputName', 'Input Name');
-    const placeholderDropdown = selectInput('placeholderSelect', 'Placeholder', ['-- New Placeholder --', ...rulesPlaceholders]);
-    const placeholderTextfield = textInput('placeholder', 'Placeholder');
-    placeholderTextfield.style.display = 'none';
+    const [placeholderDropdown, placeholderSelect] = selectInput('placeholderSelect', 'Placeholder', placeholderOptions);
+    const placeholderTextfield = textInput('placeholderName', 'Placeholder');
     const description = textInput('description', 'Description');
 
-    form.append(workflowName, nodeTitle, nodeClass, inputName, placeholderDropdown, placeholderTextfield, description);
+    form.append(workflowDropdown, workflowName, nodeTitle, nodeClass, inputName, placeholderDropdown, placeholderTextfield, description);
 
     // Pre-fill form if editing existing rule
     if (existingRule) {
@@ -74,46 +106,41 @@ async function showReplacementRuleDialog(existingRule = null) {
         form.querySelector('#nodeTitle').value = existingRule.nodeTitle || '';
         form.querySelector('#nodeClass').value = existingRule.nodeClass || '';
         form.querySelector('#inputName').value = existingRule.inputName || '';
+        form.querySelector('#description').value = existingRule.description;
 
-        const placeholderSelect = form.querySelector('#placeholderSelect');
-        const placeholderInput = form.querySelector('#placeholder');
+        const placeholderInput = form.querySelector('input#placeholderName');
 
-        if (rulesPlaceholders.includes(existingRule.placeholder)) {
+        if (existingRule.placeholder in placeholderSelect.options) {
             placeholderSelect.value = existingRule.placeholder;
         } else {
-            placeholderSelect.value = '';
             placeholderInput.value = existingRule.placeholder;
-            placeholderInput.style.display = 'block';
+            placeholderSelect.value = '';
         }
 
-        form.querySelector('#description').value = existingRule.description;
-    }
-
-    // Handle placeholder select/input toggle
-    const placeholderSelect = form.querySelector('#placeholderSelect');
-    const placeholderInput = form.querySelector('#placeholder');
-
-    placeholderSelect.addEventListener('change', onPlaceholderSelectChange);
-
-    function onPlaceholderSelectChange() {
-        if (placeholderSelect.value === '') {
-            placeholderInput.style.display = 'block';
-            placeholderInput.focus();
+        if (existingRule.workflowName) {
+            workflowSelect.value = existingRule.workflowName;
         } else {
-            placeholderInput.style.display = 'none';
+            workflowSelect.value = '';
         }
     }
-    onPlaceholderSelectChange();
 
-    const okButton = existingRule ? 'Save' : 'Add';
+    placeholderSelect.addEventListener('change', () => onPlaceholderSelectChange(form));
+    workflowSelect.addEventListener('change', () => onWorkflowSelectChange(form));
+
+    onPlaceholderSelectChange(form);
+    onWorkflowSelectChange(form);
+
+    const okButton = existingRule ? t`Save` : t`Add Rule`;
 
     const confirmation = await context.callGenericPopup(form, context.POPUP_TYPE.CONFIRM, 'Replacement Rule', { okButton });
     if (confirmation !== context.POPUP_RESULT.AFFIRMATIVE) {
         return null;
     }
 
+    const placeholderInput = placeholderTextfield.querySelector('input');
+
     return {
-        workflowName: form.querySelector('#workflowName').value || null,
+        workflowName: workflowSelect.value || workflowName.querySelector('input').value,
         nodeTitle: form.querySelector('#nodeTitle').value || null,
         nodeClass: form.querySelector('#nodeClass').value || null,
         inputName: form.querySelector('#inputName').value || null,

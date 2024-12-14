@@ -52,6 +52,7 @@ function createReplacementsList(settings, context) {
             cardHeader.style.alignItems = 'center';
             cardHeader.style.marginBottom = '8px';
             cardHeader.appendChild(document.createTextNode(replacement.description || 'No description'));
+
             const removeButton = document.createElement('button');
             removeButton.classList.add('menu_button');
             removeButton.textContent = t`Remove`;
