@@ -5,6 +5,41 @@ import { EXTENSION_NAME } from '../consts.js';
 const t = SillyTavern.getContext().t;
 
 
+function textInput(inputId, labelText) {
+    const input = document.createElement('input');
+    input.id = inputId;
+    input.type = 'text';
+    input.classList.add('text_pole', 'optional');
+    const label = document.createElement('label');
+    label.textContent = labelText;
+    label.appendChild(input);
+    return label;
+}
+
+/**
+ * Create a select input
+ * @param inputId
+ * @param labelText
+ * @param {Record<string,string>} options
+ * @returns {(HTMLLabelElement|HTMLSelectElement)[]}
+ */
+function selectInput(inputId, labelText, options) {
+    const label = document.createElement('label');
+    label.textContent = labelText;
+    const select = document.createElement('select');
+    select.id = inputId;
+    select.classList.add('text_pole');
+    for (const [value, text] of Object.entries(options)) {
+        const option = document.createElement('option');
+        option.value = value;
+        option.textContent = text;
+        select.appendChild(option);
+    }
+    label.appendChild(select);
+    return [label, select];
+}
+
+
 function onPlaceholderSelectChange(form) {
     const placeholderSelect = form.querySelector('#placeholderSelect');
     const placeholderInput = form.querySelector('#placeholderName');
@@ -47,41 +82,6 @@ async function showReplacementRuleDialog(existingRule = null) {
 
     const form = document.createElement('div');
     form.classList.add('replacement-rule-dialog');
-
-    function textInput(inputId, labelText) {
-        const input = document.createElement('input');
-        input.id = inputId;
-        input.type = 'text';
-        input.classList.add('text_pole', 'optional');
-        const label = document.createElement('label');
-        label.textContent = labelText;
-        label.appendChild(input);
-        return label;
-    }
-
-    /**
-     * Create a select input
-     * @param inputId
-     * @param labelText
-     * @param {Record<string,string>} options
-     * @returns {(HTMLLabelElement|HTMLSelectElement)[]}
-     */
-    function selectInput(inputId, labelText, options) {
-        const label = document.createElement('label');
-        label.textContent = labelText;
-        const select = document.createElement('select');
-        select.id = inputId;
-        select.classList.add('text_pole');
-        for (const [value, text] of Object.entries(options)) {
-            const option = document.createElement('option');
-            option.value = value;
-            option.textContent = text;
-            select.appendChild(option);
-        }
-        label.appendChild(select);
-        return [label, select];
-    }
-
 
     const workflowNames = availableWorkflows();
     const workflowOptions = { '': t`[Any workflow]`, ...workflowNames };

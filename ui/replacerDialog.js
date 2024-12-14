@@ -1,6 +1,7 @@
 import { parseWorkflow, replaceInputWithPlaceholder } from '../workflow/parser.js';
 import { EXTENSION_NAME, settingsKey } from '../consts.js';
 import { showReplacementRuleDialog } from './replacementRuleDialog.js';
+import { currentWorkflowContent, currentWorkflowName } from '../workflow/workflows.js';
 
 const t = SillyTavern.getContext().t;
 
@@ -17,7 +18,7 @@ function onInputReplaceClick(btn, id, name, nodeInput) {
     // Replace input value with placeholder
     try {
         const workflowElement = document.getElementById('sd_comfy_workflow_editor_workflow');
-        const workflowJson = workflowElement?.value;
+        const workflowJson = currentWorkflowContent();
         workflowElement.value = replaceInputWithPlaceholder(workflowJson, id, name, nodeInput.placeholder);
         workflowElement.dispatchEvent(new Event('input'));
         console.log(`[${EXTENSION_NAME}]`, 'Workflow updated');
@@ -46,7 +47,7 @@ async function onAddRuleClick(actionButton) {
 
     const node = this.closest('.node-card').nodeInfo;
     const workflowElement = document.getElementById('sd_comfy_workflow_editor_workflow');
-    const workflowName = document.getElementById('sd_comfy_workflow_editor_name')?.textContent;
+    const workflowName = currentWorkflowName();
 
     console.log(`[${EXTENSION_NAME}] Add rule for input`, inputName, 'in node', node.title, 'workflow', workflowName, 'workflowElement:', workflowElement);
 
@@ -161,11 +162,11 @@ function createInputElement(nodeId, inputName, nodeInputInfo) {
 function createNodeElement(nodeInfo) {
     const nodeCard = document.createElement('div');
     nodeCard.classList.add('node-card');
-    nodeCard.style.border = '1px solid #666';
+    nodeCard.style.border = '1px solid var(--SmartThemeBorderColor)';
     nodeCard.style.borderRadius = '8px';
     nodeCard.style.padding = '10px';
     nodeCard.style.marginBottom = '10px';
-    nodeCard.style.backgroundColor = '--SmartThemeBodyColor)';
+    nodeCard.style.backgroundColor = 'var(--SmartThemeChatTintColor)';
 
     // Create header
     const header = document.createElement('div');

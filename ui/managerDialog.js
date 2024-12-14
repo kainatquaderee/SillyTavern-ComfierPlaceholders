@@ -147,12 +147,10 @@ async function showManagerDialog() {
     header.appendChild(h3);
 
     const addButton = iconButton(t`Add rule`, 'plus');
-
-    const { container, renderReplacements } = createReplacementsList();
-
     addButton.style.alignSelf = 'flex-start';
     addButton.addEventListener('click', onAddRuleClick);
 
+    const { container, renderReplacements } = createReplacementsList();
     async function onAddRuleClick() {
         const newReplacement = await showReplacementRuleDialog();
         if (!newReplacement) return;
