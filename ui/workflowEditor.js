@@ -5,11 +5,48 @@ import { EXTENSION_NAME } from '../consts.js';
 
 const t = SillyTavern.getContext().t;
 
+/**
+ * Get the current workflow name
+ * @returns {string}
+ */
+export function currentWorkflowName() {
+    const name = document.getElementById('sd_comfy_workflow_editor_name')?.textContent;
+    if (!name) {
+        console.warn(`[${EXTENSION_NAME}]`, t`No workflow name found`);
+    }
+    return name;
+}
+
+/**
+ * Get the current workflow JSON
+ * @returns {*}
+ */
+export function currentWorkflowContent() {
+    const workflowJSON = document.getElementById('sd_comfy_workflow_editor_workflow')?.value;
+    if (!workflowJSON) {
+        console.warn(`[${EXTENSION_NAME}]`, t`No workflow JSON found`);
+    }
+    return workflowJSON;
+}
+
+/**
+ * Get the available workflows
+ *
+ * @returns {any[]|*[]}
+ */
+export function availableWorkflows() {
+    const workflowSelect = document.getElementById('sd_comfy_workflow');
+    if (!workflowSelect) {
+        console.warn(`[${EXTENSION_NAME}]`, t`No workflow select found`);
+        return [];
+    }
+    return Array.from(workflowSelect.options).map((option) => option.value);
+}
+
 async function handleReplacerButtonClick() {
     const context = SillyTavern.getContext();
-    const workflowElement = document.getElementById('sd_comfy_workflow_editor_workflow');
-    const workflowName = document.getElementById('sd_comfy_workflow_editor_name')?.value;
-    const workflowJson = workflowElement?.value;
+    const workflowName = currentWorkflowName();
+    const workflowJson = currentWorkflowContent();
 
     if (!workflowJson) {
         alert('No workflow found');

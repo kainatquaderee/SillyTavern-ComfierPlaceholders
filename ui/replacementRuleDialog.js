@@ -11,24 +11,62 @@ async function showReplacementRuleDialog(existingRule = null) {
     rulesPlaceholders.sort();
 
     const form = document.createElement('div');
-    form.innerHTML = `
-        <div class="flex-container flexFlowColumn">
-            <label>Workflow Name<input type="text" id="workflowName" class="text_pole optional"></label>
-            <label>Node Title<input type="text" id="nodeTitle" class="text_pole optional"></label>
-            <label>Node Class<input type="text" id="nodeClass" class="text_pole optional"></label>
-            <label>Input Name<input type="text" id="inputName" class="text_pole"></label>
-            <label>Placeholder:
-                <div class="flex-container">
-                    <select id="placeholderSelect" class="text_pole">
-                        <option value="">-- New Placeholder --</option>
-                        ${Array.from(rulesPlaceholders).map(p => `<option value="${p}">${p}</option>`).join('')}
-                    </select>
-                    <input type="text" id="placeholder" required class="text_pole" style="display: none;">
-                </div>
-            </label>
-            <label>Description:<input type="text" id="description" required class="text_pole"></label>
-        </div>
-    `;
+    // form.innerHTML = `
+    //     <div class="flex-container flexFlowColumn">
+    //         <label>Workflow Name<input type="text" id="workflowName" class="text_pole optional"></label>
+    //         <label>Node Title<input type="text" id="nodeTitle" class="text_pole optional"></label>
+    //         <label>Node Class<input type="text" id="nodeClass" class="text_pole optional"></label>
+    //         <label>Input Name<input type="text" id="inputName" class="text_pole"></label>
+    //         <label>Placeholder:
+    //             <div class="flex-container">
+    //                 <select id="placeholderSelect" class="text_pole">
+    //                     <option value="">-- New Placeholder --</option>
+    //                     ${Array.from(rulesPlaceholders).map(p => `<option value="${p}">${p}</option>`).join('')}
+    //                 </select>
+    //                 <input type="text" id="placeholder" required class="text_pole" style="display: none;">
+    //             </div>
+    //         </label>
+    //         <label>Description:<input type="text" id="description" required class="text_pole"></label>
+    //     </div>
+    // `;
+
+    function textInput(inputId, labelText) {
+        const label = document.createElement('label');
+        label.textContent = labelText;
+        const input = document.createElement('input');
+        input.id = inputId;
+        input.type = 'text';
+        input.classList.add('text_pole', 'optional');
+        label.appendChild(input);
+        return label;
+    }
+
+    function selectInput(inputId, labelText, options) {
+        const label = document.createElement('label');
+        label.textContent = labelText;
+        const select = document.createElement('select');
+        select.id = inputId;
+        select.classList.add('text_pole');
+        options.forEach(option => {
+            const optionElement = document.createElement('option');
+            optionElement.value = option;
+            optionElement.textContent = option;
+            select.appendChild(optionElement);
+        });
+        label.appendChild(select);
+        return label;
+    }
+
+    const workflowName = textInput('workflowName', 'Workflow Name');
+    const nodeTitle = textInput('nodeTitle', 'Node Title');
+    const nodeClass = textInput('nodeClass', 'Node Class');
+    const inputName = textInput('inputName', 'Input Name');
+    const placeholderDropdown = selectInput('placeholderSelect', 'Placeholder', ['-- New Placeholder --', ...rulesPlaceholders]);
+    const placeholderTextfield = textInput('placeholder', 'Placeholder');
+    placeholderTextfield.style.display = 'none';
+    const description = textInput('description', 'Description');
+
+    form.append(workflowName, nodeTitle, nodeClass, inputName, placeholderDropdown, placeholderTextfield, description);
 
     // Pre-fill form if editing existing rule
     if (existingRule) {
