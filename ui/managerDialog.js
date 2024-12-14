@@ -50,7 +50,7 @@ function createReplacementsList(settings, context) {
     return { container, renderReplacements };
 }
 
-async function showReplacementsDialog() {
+async function showManagerDialog() {
     const context = SillyTavern.getContext();
     const settings = context.extensionSettings[settingsKey];
 
@@ -84,4 +84,4 @@ async function showReplacementsDialog() {
     await context.callGenericPopup(dialog, context.POPUP_TYPE.TEXT, '', { wide: true, large: true, allowVerticalScrolling: true, okButton: 'Close' });
 }
 
-export { showReplacementsDialog };
+export { showManagerDialog };

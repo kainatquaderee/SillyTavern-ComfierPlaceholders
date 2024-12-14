@@ -2,27 +2,30 @@ import { parseWorkflow, replaceInputWithPlaceholder } from '../workflow/parser.j
 import { EXTENSION_NAME, settingsKey } from '../consts.js';
 import { showReplacementRuleDialog } from './replacementRuleDialog.js';
 
+const t = SillyTavern.getContext().t;
+
 /**
  * Replace an input value with a placeholder
- * @param {MouseEvent} event
+ * @param {HTMLButtonElement} btn
  * @param id
  * @param name
  * @param nodeInput
  */
-function onInputReplaceClick(event, id, name, nodeInput) {
-    const target = event.target;
+function onInputReplaceClick(btn, id, name, nodeInput) {
+    const target = btn;
     console.log(`[${EXTENSION_NAME}] Replace input`, id, name, nodeInput.placeholder);
     // Replace input value with placeholder
     try {
         const workflowElement = document.getElementById('sd_comfy_workflow_editor_workflow');
         const workflowJson = workflowElement?.value;
         workflowElement.value = replaceInputWithPlaceholder(workflowJson, id, name, nodeInput.placeholder);
-        const event = new Event('input');
-        workflowElement.dispatchEvent(event);
+        workflowElement.dispatchEvent(new Event('input'));
         console.log(`[${EXTENSION_NAME}]`, 'Workflow updated');
         target.disabled = true;
         target.classList.add('disabled');
-        target.textContent = 'Replaced';
+        const icon = target.querySelector('i');
+        icon.classList.remove('fa-square-caret-right');
+        icon.classList.add('fa-check');
         nodeInput.value = `%${nodeInput.placeholder}%`;
         // update the input value in the UI
         const inputRow = target.closest('.input-row');
@@ -44,10 +47,11 @@ function onInputReplaceClick(event, id, name, nodeInput) {
  */
 function createInputElement(id, name, nodeInput) {
     const inputRow = document.createElement('div');
-    inputRow.classList.add('input-row', 'flex-container', 'alignItemsCenter', 'flexNoWrap');
+    // , 'flex-container', 'gap10', 'alignItemsCenter'
+    inputRow.classList.add('input-row', 'flex-container', 'alignItemsCenter');
 
     const actionButton = document.createElement('button');
-    actionButton.classList.add('menu_button', 'whitespacenowrap');
+    actionButton.classList.add('menu_button', 'menu_button_icon');
 
     if (nodeInput.value === `%${nodeInput.placeholder}%`) {
         actionButton.disabled = true;
@@ -55,7 +59,12 @@ function createInputElement(id, name, nodeInput) {
         actionButton.textContent = 'Replaced';
     } else if (nodeInput.placeholder === '') {
         actionButton.classList.add('no-rule');
-        actionButton.textContent = 'Add Rule';
+        const icon = document.createElement('i');
+        icon.classList.add('fas', 'fa-plus');
+        actionButton.appendChild(icon);
+        const text = document.createElement('span');
+        text.textContent = 'Add rule';
+        actionButton.appendChild(text);
         const addRuleHandler = async function() {
             const node = this.closest('.node-item').nodeInfo;
             const workflowElement = document.getElementById('sd_comfy_workflow_editor_workflow');
@@ -85,37 +94,48 @@ function createInputElement(id, name, nodeInput) {
                 // Remove old handler and add new one for replacement
                 actionButton.removeEventListener('click', addRuleHandler);
                 actionButton.addEventListener('click', (e) => {
-                    onInputReplaceClick(e, id, name, nodeInput);
+                    onInputReplaceClick(actionButton, id, name, nodeInput);
                 });
             }
         };
         actionButton.addEventListener('click', addRuleHandler);
     } else {
         actionButton.classList.add('can-replace');
-        actionButton.textContent = 'Replace';
+        const icon = document.createElement('i');
+        icon.classList.add('fas', 'fa-square-caret-right');
+        actionButton.appendChild(icon);
+        const text = document.createElement('code');
+        text.title = t`Replace input value with placeholder: %${nodeInput.placeholder}%`;
+        text.textContent = nodeInput.placeholder;
+        actionButton.appendChild(text);
         actionButton.addEventListener('click', (e) => {
-            onInputReplaceClick(e, id, name, nodeInput);
+            onInputReplaceClick(actionButton, id, name, nodeInput);
         });
     }
 
     // Input name and value
-    const nameValue = document.createElement('div');
-    nameValue.classList.add('input-name-value', 'whitespacenowrap', 'overflowHidden');
+    // const nameValue = document.createElement('div');
+    // nameValue.classList.add('input-nvp', 'whitespacenowrap', 'overflowHidden');
+
+    actionButton.style.flex = '0 0 25%';
+    actionButton.classList.add('justifyLeft');
 
     const inputName = document.createElement('code');
     inputName.textContent = nodeInput.name;
-    inputName.classList.add('input-name');
-
-    const inputValue = document.createElement('span');
-    inputValue.textContent = nodeInput.value;
-    inputValue.classList.add('input-value');
+    inputName.classList.add('input-name', 'flexBasis25p', 'justifyLeft');
+    // inputName.style.flex = '0 0 20%';
 
     const inputPlaceholder = document.createElement('code');
     inputPlaceholder.textContent = nodeInput.placeholder;
-    inputPlaceholder.classList.add('input-placeholder');
+    inputPlaceholder.classList.add('input-placeholder', 'flexBasis25p', 'justifyLeft');
+    // inputName.style.flex = '0 0 20%';
 
-    nameValue.append(inputName, inputValue, inputPlaceholder);
-    inputRow.append(actionButton, nameValue);
+    const inputValue = document.createElement('span');
+    inputValue.textContent = nodeInput.value;
+    inputValue.classList.add('input-value', 'overflow-hidden');
+
+    // nameValue.append(inputName, inputPlaceholder, inputValue);
+    inputRow.append(inputName, actionButton, inputValue);
     return inputRow;
 }
 
@@ -126,11 +146,14 @@ function createInputElement(id, name, nodeInput) {
  */
 function createNodeElement(node) {
     const nodeEl = document.createElement('div');
-    nodeEl.classList.add('node-item', 'flex-container', 'flexFlowColumn', 'flexGap10', 'alignItemsStart');
+    //  flex-container flexFlowColumn flexGap10 alignItemsStart
+
+    nodeEl.classList.add('node-item');
 
     // Create header
     const header = document.createElement('div');
-    header.classList.add('node-header', 'flex-container', 'gap10', 'alignItemsCenter');
+    // , 'flex-container', 'gap10', 'alignItemsCenter'
+    header.classList.add('node-header');
     const title = document.createElement('h4');
     title.textContent = node.title;
     title.classList.add('node-title');

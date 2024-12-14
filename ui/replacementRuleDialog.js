@@ -1,3 +1,4 @@
+
 /**
  * Show a dialog to add or edit a replacement rule
  * @param {Object} [existingRule] Optional existing rule to edit
@@ -5,10 +6,22 @@
  */
 async function showReplacementRuleDialog(existingRule = null) {
     const context = SillyTavern.getContext();
+    /** @type {SillyTavernComfierPlaceholdersSettings} */
     const settings = context.extensionSettings[settingsKey];
 
+    // Get placeholders from the current workflow
+    const currentPlaceholders = Object.keys(getCurrentPlaceholders());
+    currentPlaceholders.sort();
+
     // Get unique placeholders from existing rules
-    const existingPlaceholders = new Set(settings.replacements.map(r => r.placeholder));
+    const rulesPlaceholders = new Set(settings.replacements.map(r => r.placeholder));
+    rulesPlaceholders.delete(''); // Remove empty placeholders
+
+    // Add rules placeholders to the list of placeholders
+    for (const placeholder of rulesPlaceholders) {
+        currentPlaceholders.push(placeholder);
+    }
+
 
     const form = document.createElement('div');
     form.innerHTML = `
@@ -21,7 +34,7 @@ async function showReplacementRuleDialog(existingRule = null) {
                 <div class="flex-container">
                     <select id="placeholderSelect" class="text_pole">
                         <option value="">-- New Placeholder --</option>
-                        ${Array.from(existingPlaceholders).map(p => `<option value="${p}">${p}</option>`).join('')}
+                        ${Array.from(rulesPlaceholders).map(p => `<option value="${p}">${p}</option>`).join('')}
                     </select>
                     <input type="text" id="placeholder" required class="text_pole" style="display: none;">
                 </div>
@@ -36,25 +49,25 @@ async function showReplacementRuleDialog(existingRule = null) {
         form.querySelector('#nodeTitle').value = existingRule.nodeTitle || '';
         form.querySelector('#nodeClass').value = existingRule.nodeClass || '';
         form.querySelector('#inputName').value = existingRule.inputName || '';
-        
+
         const placeholderSelect = form.querySelector('#placeholderSelect');
         const placeholderInput = form.querySelector('#placeholder');
-        
-        if (existingPlaceholders.has(existingRule.placeholder)) {
+
+        if (rulesPlaceholders.has(existingRule.placeholder)) {
             placeholderSelect.value = existingRule.placeholder;
         } else {
             placeholderSelect.value = '';
             placeholderInput.value = existingRule.placeholder;
             placeholderInput.style.display = 'block';
         }
-        
+
         form.querySelector('#description').value = existingRule.description;
     }
 
     // Handle placeholder select/input toggle
     const placeholderSelect = form.querySelector('#placeholderSelect');
     const placeholderInput = form.querySelector('#placeholder');
-    
+
     placeholderSelect.addEventListener('change', () => {
         if (placeholderSelect.value === '') {
             placeholderInput.style.display = 'block';

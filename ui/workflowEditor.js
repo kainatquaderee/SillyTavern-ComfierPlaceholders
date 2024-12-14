@@ -1,4 +1,5 @@
 import { createReplacerDialog } from './replacerDialog.js';
+import { showManagerDialog } from './managerDialog.js';
 import { replaceAllPlaceholders } from '../workflow/parser.js';
 import { EXTENSION_NAME } from '../consts.js';
 
@@ -80,8 +81,22 @@ function injectReplacerButton() {
         zapButton.appendChild(zapText);
         zapButton.addEventListener('click', handleZapButtonClick);
 
+        const manageButton = document.createElement('button');
+        manageButton.classList.add('menu_button');
+        manageButton.textContent = 'Manage...';
+        manageButton.addEventListener('click', async () => {
+            try {
+                await showManagerDialog();
+            } catch (error) {
+                console.error('Failed to show manager dialog:', error);
+                toastr.error(error.message, 'Failed to show manager dialog');
+            }
+        });
+
         replacerSection.appendChild(zapButton);
         replacerSection.appendChild(replacerButton);
+        replacerSection.appendChild(manageButton);
+
         container.appendChild(replacerSection);
     }, 100);
 }
