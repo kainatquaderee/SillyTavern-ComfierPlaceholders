@@ -9,16 +9,8 @@ const t = SillyTavern.getContext().t;
 
 async function handleReplacerButtonClick() {
     const context = SillyTavern.getContext();
-    const workflowName = currentWorkflowName();
-    const workflowJson = currentWorkflowContent();
-
-    if (!workflowJson) {
-        alert('No workflow found');
-        return;
-    }
-
     try {
-        const dialog = createReplacerDialog(workflowName, workflowJson);
+        const dialog = createReplacerDialog();
         await context.callGenericPopup(dialog, context.POPUP_TYPE.TEXT, '', { wide: true, large: true, allowVerticalScrolling: true });
     } catch (error) {
         console.error('Failed to parse workflow:', error);

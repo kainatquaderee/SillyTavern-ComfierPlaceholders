@@ -1,4 +1,4 @@
-import { settingsKey } from '../consts.js';
+import { settingsKey, EXTENSION_NAME } from '../consts.js';
 
 /**
  * @typedef {Object} WorkflowNode
@@ -67,6 +67,8 @@ function parseWorkflow(workflowName, workflowJson) {
  * @returns {string} The modified workflow JSON
  */
 function replaceInputWithPlaceholder(workflowJson, nodeId, inputName, placeholder) {
+    console.log(`[${EXTENSION_NAME}]`, `Replacing input ${inputName} in node ${nodeId} with placeholder %${placeholder}%`);
+    // console.log(`[${EXTENSION_NAME}]`, 'Workflow JSON:', workflowJson);
     const workflow = JSON.parse(workflowJson);
     if (!workflow[nodeId]?.inputs?.[inputName]) {
         throw new Error(`Input ${inputName} not found in node ${nodeId}`);

@@ -1,7 +1,10 @@
 import { parseWorkflow, replaceInputWithPlaceholder } from '../workflow/parser.js';
 import { EXTENSION_NAME, settingsKey } from '../consts.js';
 import { showReplacementRuleDialog } from './replacementRuleDialog.js';
-import { currentWorkflowContent, currentWorkflowName } from '../workflow/workflows.js';
+import { currentWorkflowContent, currentWorkflowName, updateCurrentWorkflow } from '../workflow/workflows.js';
+import { iconButton } from './iconButton.js';
+import { replaceButton } from './replaceButton.js';
+import { getCurrentPlaceholders, getPlaceholderOptions } from '../workflow/placeholders.js';
 
 const t = SillyTavern.getContext().t;
 
@@ -12,40 +15,27 @@ const t = SillyTavern.getContext().t;
  * @param name
  * @param nodeInput
  */
-function onInputReplaceClick(btn, id, name, nodeInput) {
+export function onInputReplaceClick(btn, id, name, nodeInput) {
     const target = btn;
-    console.log(`[${EXTENSION_NAME}] Replace input`, id, name, nodeInput.placeholder);
+    console.log(`[${EXTENSION_NAME}] Replace input`, btn, id, name, nodeInput.placeholder);
     // Replace input value with placeholder
     try {
-        const workflowElement = document.getElementById('sd_comfy_workflow_editor_workflow');
-        const workflowJson = currentWorkflowContent();
-        workflowElement.value = replaceInputWithPlaceholder(workflowJson, id, name, nodeInput.placeholder);
-        workflowElement.dispatchEvent(new Event('input'));
-        console.log(`[${EXTENSION_NAME}]`, 'Workflow updated');
-        target.disabled = true;
-        target.classList.add('disabled');
-        const icon = target.querySelector('i');
-        icon.classList.remove('fa-square-caret-right');
-        icon.classList.add('fa-check');
-        nodeInput.value = `%${nodeInput.placeholder}%`;
-        // update the input value in the UI
-        const inputRow = target.closest('.input-row');
-        const inputValue = inputRow.querySelector('.input-value');
-        inputValue.textContent = nodeInput.value;
+        updateCurrentWorkflow(id, name, nodeInput.placeholder);
 
+        // can we just rewrite the entire nodes-list-block?
+        const nodeBlock = target.closest('.nodes-list-block');
+        const newNodesBlock = createNodesList();
+        nodeBlock.replaceWith(newNodesBlock);
     } catch (error) {
         console.error('Failed to replace input:', error);
         toastr.error(error.message, 'Failed to replace input');
     }
 }
 
-async function onAddRuleClick(actionButton) {
+export async function onAddRuleClick(actionButton, nodeId, inputName, nodeInputInfo) {
     console.log(`[${EXTENSION_NAME}] Add rule clicked`, actionButton, 'this:', this);
-    const inputRow = this.closest('.input-row');
-    const nodeInputInfo = inputRow.nodeInputInfo;
-    const inputName = nodeInputInfo.name;
 
-    const node = this.closest('.node-card').nodeInfo;
+    const node = actionButton.closest('.node-card').nodeInfo;
     const workflowElement = document.getElementById('sd_comfy_workflow_editor_workflow');
     const workflowName = currentWorkflowName();
 
@@ -63,28 +53,19 @@ async function onAddRuleClick(actionButton) {
     if (newRule) {
         const context = SillyTavern.getContext();
         const settings = context.extensionSettings[settingsKey];
-        const nodeId = inputRow.closest('.node-card').nodeInfo.id;
         settings.replacements.push(newRule);
         context.saveSettingsDebounced();
 
-        // Update button state
-        this.classList.remove('no-rule');
-        this.classList.add('can-replace');
-        this.textContent = 'Replace';
-        nodeInputInfo.placeholder = newRule.placeholder;
-        const inputPlaceholder = inputRow.querySelector('.input-placeholder');
-        inputPlaceholder.textContent = newRule.placeholder;
+        // TODO: Replace input value with placeholder
 
-        // Remove old handler and add new one for replacement
-        this.removeEventListener('click', onAddRuleClick);
-        this.addEventListener('click', () => {
-            onInputReplaceClick(this, nodeId, inputName, nodeInputInfo);
-        });
+        const nodeBlock = actionButton.closest('.nodes-list-block');
+        const newNodesBlock = createNodesList();
+        nodeBlock.replaceWith(newNodesBlock);
     }
 }
 
 /**
- * Create an input element
+ * Create the row for one input of a Comfy node
  * @param nodeId
  * @param inputName
  * @param {NodeInputInfo} nodeInputInfo
@@ -96,42 +77,14 @@ function createInputElement(nodeId, inputName, nodeInputInfo) {
 
     inputRow.classList.add('input-row', 'flex-container', 'alignItemsCenter');
 
-    const actionButton = document.createElement('button');
-    actionButton.classList.add('menu_button', 'menu_button_icon');
-
-    if (nodeInputInfo.value === `%${nodeInputInfo.placeholder}%`) {
-        actionButton.disabled = true;
-        actionButton.classList.add('disabled');
-        actionButton.textContent = 'Replaced';
-    } else if (nodeInputInfo.placeholder === '') {
-        actionButton.classList.add('no-rule');
-        const icon = document.createElement('i');
-        icon.classList.add('fas', 'fa-plus');
-        actionButton.appendChild(icon);
-        const text = document.createElement('span');
-        text.textContent = 'Add rule';
-        actionButton.appendChild(text);
-
-
-        actionButton.addEventListener('click', onAddRuleClick);
-    } else {
-        actionButton.classList.add('can-replace');
-        const icon = document.createElement('i');
-        icon.classList.add('fas', 'fa-square-caret-right');
-        actionButton.appendChild(icon);
-        const text = document.createElement('code');
-        text.title = t`Replace input value with placeholder: %${nodeInputInfo.placeholder}%`;
-        text.textContent = nodeInputInfo.placeholder;
-        actionButton.appendChild(text);
-        actionButton.addEventListener('click', (e) => {
-            onInputReplaceClick(actionButton, nodeId, inputName, nodeInputInfo);
-        });
-    }
+    // const actionButton = document.createElement('button');
+    // actionButton.classList.add('menu_button', 'menu_button_icon');
 
     // Input name and value
     // const nameValue = document.createElement('div');
     // nameValue.classList.add('input-nvp', 'whitespacenowrap', 'overflowHidden');
 
+    const actionButton = replaceButton(nodeId, nodeInputInfo);
     actionButton.style.flex = '0 0 25%';
     actionButton.classList.add('justifyLeft');
 
@@ -198,7 +151,12 @@ function createNodeElement(nodeInfo) {
     return nodeCard;
 }
 
-function createNodesList(nodes) {
+function createNodesList() {
+    const workflowName = currentWorkflowName();
+    console.log(`[${EXTENSION_NAME}] Creating nodes list`, workflowName);
+    const workflowJson = currentWorkflowContent();
+    const nodes = parseWorkflow(workflowName, workflowJson);
+
     const nodesContainer = document.createElement('div');
     nodesContainer.classList.add('nodes-list-block');
     // const h4 = document.createElement('h4');
@@ -215,8 +173,13 @@ function createNodesList(nodes) {
     return nodesContainer;
 }
 
-function createReplacerDialog(workflowName, workflowJson) {
-    const nodes = parseWorkflow(workflowName, workflowJson);
+function createReplacerDialog() {
+    const workflowName = currentWorkflowName();
+
+    // console.log(`[${EXTENSION_NAME}] Creating replacer dialog for workflow`, workflowName, 'workflowJson:', workflowJson);
+    console.log(`[${EXTENSION_NAME}] Creating replacer dialog for workflow`, workflowName);
+    // console.log(`[${EXTENSION_NAME}] getPlaceholderOptions`, getPlaceholderOptions());
+    console.log(`[${EXTENSION_NAME}] getCurrentPlaceholders`, getCurrentPlaceholders());
 
     // Create dialog HTML
     const dialog = document.createElement('div');
@@ -226,10 +189,12 @@ function createReplacerDialog(workflowName, workflowJson) {
     dialog.appendChild(h3);
 
     // Add nodes to the list
-    const nodesContainer = createNodesList(nodes);
+    const nodesContainer = createNodesList();
     dialog.appendChild(nodesContainer);
 
     return dialog;
 }
+
+
 
 export { createReplacerDialog };

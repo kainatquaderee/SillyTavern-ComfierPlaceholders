@@ -16,10 +16,25 @@ import { EXTENSION_NAME } from '../consts.js';
  */
 function getPlaceholderOptions() {
     const rulesPlaceholders = getCurrentPlaceholders();
-    return Object.entries(rulesPlaceholders).sort().reduce((acc, [key, value]) => {
-        acc[key] = key;
-        return acc;
-    }, {});
+    const placeholderOptions = {};
+    for (const [key] of Object.entries(rulesPlaceholders)) {
+        placeholderOptions[key] = `%${key}%`;
+    }
+    // console.log(`[${EXTENSION_NAME}]`, 'getPlaceholderOptions: ', placeholderOptions);
+    return placeholderOptions;
+    // return Object.entries(rulesPlaceholders).sort().reduce((acc, [key, value]) => {
+    //     acc[key] = `%${value}%`;
+    //     return acc;
+    // }, {});
+}
+
+/**
+ * Get all available placeholder values
+ * @returns {string[]}
+ */
+export function getPlaceholderOptionValues() {
+    // console.log(`[${EXTENSION_NAME}]`, 'getPlaceholderOptionValues: ', placeholderOptionValues);
+    return Object.values(getPlaceholderOptions());
 }
 
 /**
@@ -56,7 +71,7 @@ function getCurrentPlaceholders() {
             valid: true,
         };
     }
-    console.log(`[${EXTENSION_NAME}]`, 'Current placeholders:', placeholders);
+    // console.log(`[${EXTENSION_NAME}]`, 'getCurrentPlaceholders: ', placeholders);
     return placeholders;
 }
 

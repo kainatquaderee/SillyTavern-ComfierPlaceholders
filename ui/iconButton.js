@@ -3,12 +3,14 @@ import { icon } from './icon.js';
 /**
  * Create an icon
  *
- * @param {string} textContent - Caller expected to have run this through SillyTavern.getContext().t
+ * @param {string} textContent
  * @param {string} faClass
  * @param {boolean} srOnly
  * @returns {HTMLButtonElement}
  */
 export function iconButton(textContent, faClass, srOnly = false) {
+    // todo: i18n
+
     if (!textContent) {
         throw new Error('textContent is required');
     }

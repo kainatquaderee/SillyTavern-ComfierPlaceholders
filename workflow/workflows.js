@@ -1,5 +1,31 @@
 import { EXTENSION_NAME } from '../consts.js';
+import { replaceInputWithPlaceholder } from './parser.js';
 const t = SillyTavern.getContext().t;
+
+
+/**
+ * Update the current workflow with a new placeholder
+ * @param nodeId
+ * @param inputName
+ * @param placeholder
+ */
+export function updateCurrentWorkflow(nodeId, inputName, placeholder) {
+    const workflowJson = currentWorkflowContent();
+    const workflowElement = document.getElementById('sd_comfy_workflow_editor_workflow');
+    const newWorkflow = replaceInputWithPlaceholder(workflowJson, nodeId, inputName, placeholder);
+    if (!newWorkflow) {
+        console.warn(`[${EXTENSION_NAME}]`, t`Failed to update workflow`);
+        return;
+    }
+    if (newWorkflow === workflowJson) {
+        console.warn(`[${EXTENSION_NAME}]`, t`Workflow not updated`);
+        return;
+    }
+    workflowElement.value = newWorkflow;
+    workflowElement.dispatchEvent(new Event('input'));
+    console.log(`[${EXTENSION_NAME}]`, 'Workflow updated');
+}
+
 
 /**
  * Get the current workflow name
