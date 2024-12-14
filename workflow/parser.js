@@ -69,13 +69,20 @@ function parseWorkflow(workflowName, workflowJson) {
  */
 function replaceInputWithPlaceholder(workflowJson, nodeId, inputName, placeholder) {
     console.log(`[${EXTENSION_NAME}]`, `Replacing input ${inputName} in node ${nodeId} with placeholder %${placeholder}%`);
+    const unperked = placeholder.replace(/%/g, '');
+    if (!unperked) {
+        throw new Error('Placeholder cannot be empty');
+    }
+    if (unperked !== placeholder) {
+        console.log(`[${EXTENSION_NAME}]`, 'Removing % from placeholder:', placeholder, unperked);
+    }
     // console.log(`[${EXTENSION_NAME}]`, 'Workflow JSON:', workflowJson);
     const workflow = JSON.parse(workflowJson);
     if (!workflow[nodeId]?.inputs?.[inputName]) {
         throw new Error(`Input ${inputName} not found in node ${nodeId}`);
     }
 
-    workflow[nodeId].inputs[inputName] = `%${placeholder}%`;
+    workflow[nodeId].inputs[inputName] = `%${unperked}%`;
     return JSON.stringify(workflow, null, 2);
 }
 

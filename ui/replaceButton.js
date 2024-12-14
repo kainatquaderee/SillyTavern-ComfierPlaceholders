@@ -1,9 +1,7 @@
 import { iconButton } from './iconButton.js';
-import { getCurrentPlaceholders, getPlaceholderOptionValues } from '../workflow/placeholders.js';
+import { getPlaceholderOptionValues } from '../workflow/placeholders.js';
 import { EXTENSION_NAME } from '../consts.js';
 import { onInputReplaceClick, onAddRuleClick } from './replacerDialog.js';
-
-const t = SillyTavern.getContext().t;
 
 /**
  * Replace button for an input
@@ -30,17 +28,16 @@ export function replaceButton(nodeId, nodeInputInfo) {
     if (log) console.log(`[${EXTENSION_NAME}]`, 'currentValueValid:', currentValueValid, 'Current value:', nodeInputInfo.value, 'in placeholders:', placeholderValues);
 
     // want to know if the proposed value is a placeholder that exists
-    const proposedValueValid = placeholderValues.includes(nodeInputInfo.placeholder);
-    if (log) console.log(`[${EXTENSION_NAME}]`, 'proposedValueValid:', proposedValueValid, 'Current value:', nodeInputInfo.placeholder, 'in placeholders:', placeholderValues);
+    const proposedValueValid = placeholderValues.includes(nodeInputInfo.suggested);
+    if (log) console.log(`[${EXTENSION_NAME}]`, 'proposedValueValid:', proposedValueValid, 'Current value:', nodeInputInfo.suggested, 'in placeholders:', placeholderValues);
 
-    // want to know if the current value is the same as the placeholder
-    const testval = `%${nodeInputInfo.placeholder}%`;
-    const nodeMatchesPlaceholder = nodeInputInfo.value === testval;
-    if (log) console.log(`[${EXTENSION_NAME}]`, 'nodeMatchesPlaceholder:', nodeMatchesPlaceholder, 'Current value:', nodeInputInfo.value, 'testval:', testval);
+    // want to know if the current value is the same as the suggested placeholder
+    const nodeMatchesPlaceholder = nodeInputInfo.value && nodeInputInfo.value === nodeInputInfo.suggested;
+    if (log) console.log(`[${EXTENSION_NAME}]`, 'nodeMatchesPlaceholder:', nodeMatchesPlaceholder, 'Current value:', nodeInputInfo.value, 'Proposed value:', nodeInputInfo.suggested);
 
     // want to know if there is no rule available for the current value
-    const noRuleAvailable = nodeInputInfo.placeholder === '';
-    if (log) console.log(`[${EXTENSION_NAME}]`, 'noRuleAvailable:', noRuleAvailable, 'Current value:', nodeInputInfo.placeholder);
+    const ruleAvailable = nodeInputInfo.suggested !== '';
+    if (log) console.log(`[${EXTENSION_NAME}]`, 'ruleAvailable:', ruleAvailable, 'Current value:', nodeInputInfo.suggested);
 
     console.log(`[${EXTENSION_NAME}]`, 'Replace button for', nodeId, 'nodeId', nodeInputInfo, 'nodeInputInfo', 'currentValueValid', currentValueValid, 'proposedValueValid', proposedValueValid, 'nodeMatchesPlaceholder', nodeMatchesPlaceholder, 'noRuleAvailable', noRuleAvailable);
 
@@ -63,15 +60,16 @@ export function replaceButton(nodeId, nodeInputInfo) {
         oopsButton.classList.add('cp--nodeMatchesPlaceholder');
         return oopsButton;
     }
-    if (noRuleAvailable) {
-        addRuleButton.addEventListener('click', () => onAddRuleClick(addRuleButton, nodeId, nodeInputInfo.name, nodeInputInfo));
-        addRuleButton.classList.add('cp--noRuleAvailable');
-        return addRuleButton;
+    if (ruleAvailable) {
+        // user should fix the rule
+        if (log) console.log(`[${EXTENSION_NAME}]`, 'Replace button for', nodeInputInfo);
+        const oopsButton = iconButton('Default', 'triangle-exclamation');
+        oopsButton.classList.add('mes_edit_cancel');
+        oopsButton.classList.add('cp--ruleAvailable');
+        return oopsButton;
     }
 
-    if (log) console.log(`[${EXTENSION_NAME}]`, 'Replace button for', nodeInputInfo);
-    const oopsButton = iconButton('Default', 'triangle-exclamation');
-    oopsButton.classList.add('mes_edit_cancel');
-    oopsButton.classList.add('cp--default');
-    return oopsButton;
+    addRuleButton.addEventListener('click', () => onAddRuleClick(addRuleButton, nodeId, nodeInputInfo.name, nodeInputInfo));
+    addRuleButton.classList.add('cp--noRuleAvailable');
+    return addRuleButton;
 }

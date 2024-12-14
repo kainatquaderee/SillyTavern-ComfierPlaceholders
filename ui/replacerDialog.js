@@ -1,10 +1,9 @@
-import { parseWorkflow, replaceInputWithPlaceholder } from '../workflow/parser.js';
+import { parseWorkflow } from '../workflow/parser.js';
 import { EXTENSION_NAME, settingsKey } from '../consts.js';
 import { showReplacementRuleDialog } from './replacementRuleDialog.js';
 import { currentWorkflowContent, currentWorkflowName, updateCurrentWorkflow } from '../workflow/workflows.js';
-import { iconButton } from './iconButton.js';
 import { replaceButton } from './replaceButton.js';
-import { getCurrentPlaceholders, getPlaceholderOptions } from '../workflow/placeholders.js';
+import { getCurrentPlaceholders } from '../workflow/placeholders.js';
 
 const t = SillyTavern.getContext().t;
 
@@ -17,10 +16,10 @@ const t = SillyTavern.getContext().t;
  */
 export function onInputReplaceClick(btn, id, name, nodeInput) {
     const target = btn;
-    console.log(`[${EXTENSION_NAME}] Replace input`, btn, id, name, nodeInput.placeholder);
+    console.log(`[${EXTENSION_NAME}] Replace input`, btn, id, name, nodeInput.suggested);
     // Replace input value with placeholder
     try {
-        updateCurrentWorkflow(id, name, nodeInput.placeholder);
+        updateCurrentWorkflow(id, name, nodeInput.suggested);
 
         // can we just rewrite the entire nodes-list-block?
         const nodeBlock = target.closest('.nodes-list-block');
@@ -32,7 +31,7 @@ export function onInputReplaceClick(btn, id, name, nodeInput) {
     }
 }
 
-export async function onAddRuleClick(actionButton, nodeId, inputName, nodeInputInfo) {
+export async function onAddRuleClick(actionButton, nodeId, inputName) {
     console.log(`[${EXTENSION_NAME}] Add rule clicked`, actionButton, 'this:', this);
 
     const node = actionButton.closest('.node-card').nodeInfo;
@@ -94,7 +93,7 @@ function createInputElement(nodeId, inputName, nodeInputInfo) {
     // inputName.style.flex = '0 0 20%';
 
     const inputPlaceholder = document.createElement('code');
-    inputPlaceholder.textContent = nodeInputInfo.placeholder;
+    inputPlaceholder.textContent = nodeInputInfo.suggested;
     inputPlaceholder.classList.add('input-placeholder', 'flexBasis25p', 'justifyLeft');
     // inputName.style.flex = '0 0 20%';
 
