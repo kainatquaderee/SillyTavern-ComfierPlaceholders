@@ -1,4 +1,4 @@
-import { iconButton } from './iconButton.js';
+import { ButtonType, iconButton } from './iconButton.js';
 import { getPlaceholderOptionValues } from '../workflow/placeholders.js';
 import { EXTENSION_NAME } from '../consts.js';
 import { onInputReplaceClick, onAddRuleClick } from './replacerDialog.js';
@@ -17,11 +17,8 @@ export function replaceButton(nodeId, nodeInputInfo) {
 
     const placeholderValues = getPlaceholderOptionValues();
 
-    const replaceButton = iconButton('Replace', 'square-caret-right');
-    const addRuleButton = iconButton('Add rule', 'plus');
-    const doneButton = iconButton('Replaced', 'check', true);
-    doneButton.disabled = true;
-    doneButton.classList.add('disabled');
+    const addRuleButton = iconButton('Add rule', 'plus', { srOnly: true });
+    const doneButton = iconButton('Replaced', 'check', { srOnly: true, disabled: true });
 
     // want to know if the current value of the node is a placeholder that exists
     const currentValueValid = placeholderValues.includes(nodeInputInfo.value);
@@ -39,37 +36,49 @@ export function replaceButton(nodeId, nodeInputInfo) {
     const ruleAvailable = nodeInputInfo.suggested !== '';
     if (log) console.log(`[${EXTENSION_NAME}]`, 'ruleAvailable:', ruleAvailable, 'Current value:', nodeInputInfo.suggested);
 
-    console.log(`[${EXTENSION_NAME}]`, 'Replace button for', nodeId, 'nodeId', nodeInputInfo, 'nodeInputInfo', 'currentValueValid', currentValueValid, 'proposedValueValid', proposedValueValid, 'nodeMatchesPlaceholder', nodeMatchesPlaceholder, 'noRuleAvailable', noRuleAvailable);
+    console.log(`[${EXTENSION_NAME}]`, 'Replace button for', nodeId, 'nodeId', nodeInputInfo, 'nodeInputInfo', 'currentValueValid', currentValueValid, 'proposedValueValid', proposedValueValid, 'nodeMatchesPlaceholder', nodeMatchesPlaceholder, 'ruleAvailable', ruleAvailable);
 
     if (currentValueValid) {
         doneButton.classList.add('cp--currentValueValid');
         return doneButton;
     }
     if (proposedValueValid) {
-        replaceButton.addEventListener('click', () => onInputReplaceClick(replaceButton, nodeId, nodeInputInfo.name, nodeInputInfo));
+        const replaceButton = iconButton('Replace', 'square-caret-right', {
+            srOnly: true,
+            title: `Replace with ${nodeInputInfo.suggested}`,
+        });
+        replaceButton.addEventListener('click', (e) => onInputReplaceClick(nodeId, nodeInputInfo.name, nodeInputInfo, e));
         replaceButton.classList.add('cp--proposedValueValid');
         return replaceButton;
     }
     if (nodeMatchesPlaceholder) {
+        // current value is a placeholder, but it's not in the list
+        // no rules to change it, don't know what rule might have been used
         // user should either add the placeholder to the list or edit the rule
-        // perhaps if we allowed them to run the replacement rule dialog from here, that would be good
-        const oopsButton = iconButton('Oops', 'triangle-exclamation', true);
-        oopsButton.disabled = true;
-        oopsButton.classList.add('mes_edit_cancel');
-        oopsButton.title = 'Current value matches placeholder';
+
+        const oopsButton = iconButton('Invalid', 'xmark', {
+            buttonType: ButtonType.DANGER,
+            srOnly: true,
+            title: `Placeholder ${nodeInputInfo.value} is invalid` });
         oopsButton.classList.add('cp--nodeMatchesPlaceholder');
         return oopsButton;
     }
     if (ruleAvailable) {
-        // user should fix the rule
+        // it's not broken yet, but would be if the suggested value is used
         if (log) console.log(`[${EXTENSION_NAME}]`, 'Replace button for', nodeInputInfo);
-        const oopsButton = iconButton('Default', 'triangle-exclamation');
-        oopsButton.classList.add('mes_edit_cancel');
-        oopsButton.classList.add('cp--ruleAvailable');
-        return oopsButton;
+        const replaceInvalidButton = iconButton('Replace', 'circle-exclamation', {
+            srOnly: true,
+            title: `Placeholder ${nodeInputInfo.suggested} would be invalid`,
+            buttonType: ButtonType.WARNING,
+        });
+        replaceInvalidButton.addEventListener('click', (e) => onInputReplaceClick(nodeId, nodeInputInfo.name, nodeInputInfo, e));
+        replaceInvalidButton.classList.add('cp--ruleAvailable');
+        return replaceInvalidButton;
     }
 
     addRuleButton.addEventListener('click', () => onAddRuleClick(addRuleButton, nodeId, nodeInputInfo.name, nodeInputInfo));
+    addRuleButton.title = `Add rule for ${nodeInputInfo.name}`;
     addRuleButton.classList.add('cp--noRuleAvailable');
     return addRuleButton;
 }
+

@@ -9,20 +9,21 @@ const t = SillyTavern.getContext().t;
 
 /**
  * Replace an input value with a placeholder
- * @param {HTMLButtonElement} btn
  * @param id
  * @param name
  * @param nodeInput
+ * @param event
  */
-export function onInputReplaceClick(btn, id, name, nodeInput) {
-    const target = btn;
-    console.log(`[${EXTENSION_NAME}] Replace input`, btn, id, name, nodeInput.suggested);
+export function onInputReplaceClick(id, name, nodeInput, event) {
+    const target = event.target;
+    console.log(`[${EXTENSION_NAME}] Replace input`, target, id, name, nodeInput.suggested);
     // Replace input value with placeholder
     try {
         updateCurrentWorkflow(id, name, nodeInput.suggested);
 
         // can we just rewrite the entire nodes-list-block?
         const nodeBlock = target.closest('.nodes-list-block');
+        console.log(`[${EXTENSION_NAME}] Node block`, nodeBlock);
         const newNodesBlock = createNodesList();
         nodeBlock.replaceWith(newNodesBlock);
     } catch (error) {

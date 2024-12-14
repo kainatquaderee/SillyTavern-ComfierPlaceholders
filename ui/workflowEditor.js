@@ -3,6 +3,7 @@ import { showManagerDialog } from './managerDialog.js';
 import { replaceAllPlaceholders } from '../workflow/parser.js';
 import { currentWorkflowName, currentWorkflowContent } from '../workflow/workflows.js';
 import { EXTENSION_NAME } from '../consts.js';
+import { ButtonType, iconButton } from './iconButton.js';
 
 const t = SillyTavern.getContext().t;
 
@@ -63,21 +64,16 @@ function injectReplacerButton() {
         replacerButton.appendChild(text);
         replacerButton.addEventListener('click', handleReplacerButtonClick);
 
-        const zapButton = document.createElement('button');
-        zapButton.classList.add('menu_button', 'menu_button_icon', 'whitespacenowrap');
-        zapButton.id = 'sd_comfy_workflow_editor_zap_button';
-        const zapIcon = document.createElement('i');
-        zapIcon.classList.add('fas', 'fa-bolt');
-        zapButton.appendChild(zapIcon);
-        const zapText = document.createElement('span');
-        zapText.textContent = t`Replace all`;
-        zapButton.appendChild(zapText);
+        const zapButton = iconButton('Replace all', 'bolt', {
+            id: 'sd_comfy_workflow_editor_zap_button',
+            title: 'Replace all',
+        });
         zapButton.addEventListener('click', handleZapButtonClick);
 
-        const manageButton = document.createElement('button');
-        manageButton.classList.add('menu_button');
-        manageButton.id = 'sd_comfy_workflow_editor_manage_button';
-        manageButton.textContent = 'Manage...';
+        const manageButton = iconButton('Manage...', 'list-check', {
+            id: 'sd_comfy_workflow_editor_manage_button',
+            title: 'Manage...',
+        });
         manageButton.addEventListener('click', async () => {
             try {
                 await showManagerDialog();
