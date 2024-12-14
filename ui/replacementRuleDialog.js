@@ -84,18 +84,18 @@ async function showReplacementRuleDialog(existingRule = null) {
 
 
     const workflowNames = availableWorkflows();
-    const workflowOptions = { '': t`[New Workflow]`, ...workflowNames };
+    const workflowOptions = { '': t`[Any workflow]`, ...workflowNames };
 
     const rulesPlaceholders = getPlaceholderOptions();
     const placeholderOptions = { '': t`[Custom]`, ...rulesPlaceholders };
 
     const [workflowDropdown, workflowSelect] = selectInput('workflowSelect', 'Workflow Name', workflowOptions);
-    const workflowName = textInput('workflowName', 'Workflow Name');
+    const workflowName = textInput('workflowName', 'Custom workflow name');
     const nodeTitle = textInput('nodeTitle', 'Node Title');
     const nodeClass = textInput('nodeClass', 'Node Class');
     const inputName = textInput('inputName', 'Input Name');
     const [placeholderDropdown, placeholderSelect] = selectInput('placeholderSelect', 'Placeholder', placeholderOptions);
-    const placeholderTextfield = textInput('placeholderName', 'Placeholder');
+    const placeholderTextfield = textInput('placeholderName', 'Custom placeholder');
     const description = textInput('description', 'Description');
 
     form.append(workflowDropdown, workflowName, nodeTitle, nodeClass, inputName, placeholderDropdown, placeholderTextfield, description);
