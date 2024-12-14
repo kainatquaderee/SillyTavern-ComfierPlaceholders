@@ -218,7 +218,7 @@ function createReplacerDialog(workflowName, workflowJson) {
     const dialog = document.createElement('div');
     dialog.classList.add('comfier--replacer-dialog');
     const h3 = document.createElement('h3');
-    h3.textContent = 'Comfier Placeholders';
+    h3.textContent = t`${EXTENSION_NAME}`;
     dialog.appendChild(h3);
 
     // Add nodes to the list

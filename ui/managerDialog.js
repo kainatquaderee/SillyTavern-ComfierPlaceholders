@@ -81,21 +81,24 @@ function createReplacementCard(replacement, index, onEditButtonClick, onRemoveBu
     const placeholderLabel = ruleFilter('placeholder', `%${replacement.placeholder}%`, 'Placeholder', 'percent');
 
     const cardHeader = document.createElement('div');
-    cardHeader.style.display = 'flex';
-    cardHeader.style.justifyContent = 'space-between';
-    cardHeader.style.alignItems = 'center';
+    cardHeader.classList.add('flex-container');
     cardHeader.style.marginBottom = '8px';
-    cardHeader.appendChild(document.createTextNode(replacement.description || 'No description'));
 
-    const editButton = iconButton('Edit', 'edit');
+    const cardDescription = document.createElement('h4');
+    cardDescription.textContent = replacement.description || replacement.placeholder;
+    cardDescription.classList.add('flexGrow', 'justifyLeft');
+    cardHeader.appendChild(cardDescription);
+
+    const editButton = iconButton('Edit', 'edit', true);
     editButton.dataset.index = `${index}`;
     editButton.addEventListener('click', onEditButtonClick);
     cardHeader.appendChild(editButton);
 
-    const removeButton = iconButton('Remove', 'trash-alt');
+    const removeButton = iconButton('Remove', 'trash-alt', true);
     removeButton.dataset.index = `${index}`;
-    cardHeader.appendChild(removeButton);
+    removeButton.classList.add('remove-button', 'text-danger');
     removeButton.addEventListener('click', onRemoveButtonClick);
+    cardHeader.appendChild(removeButton);
 
     const cardBody = document.createElement('div');
     cardBody.append(workflowNameLabel, nodeTitleLabel, nodeClassLabel, inputNameLabel, placeholderLabel);
