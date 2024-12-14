@@ -12,7 +12,7 @@ import { settingsKey, EXTENSION_NAME } from '../consts.js';
  * @typedef {Object} NodeInputInfo
  * @property {string} name - Input name
  * @property {string} value - Input value
- * @property {string} placeholder - Placeholder to replace
+ * @property {string} suggested - Suggested placeholder value from rules
  */
 
 /**
@@ -47,7 +47,8 @@ function parseWorkflow(workflowName, workflowJson) {
                 nodeInfo.inputs[inputName] = makeNodeInput(inputName, inputValue);
                 const rules = findMatchingRulesForNode(workflowName, nodeInfo, inputName);
                 if (rules.length > 0) {
-                    nodeInfo.inputs[inputName].placeholder = rules[0].placeholder;
+                    const ph = rules[0].placeholder;
+                    nodeInfo.inputs[inputName].suggested = `%${ph}%`;
                 }
             }
         }
@@ -122,7 +123,7 @@ function makeNodeInput(inputName, value) {
     return {
         name: inputName,
         value,
-        placeholder: '',
+        suggested: '',
     };
 }
 
@@ -159,7 +160,7 @@ function replaceAllPlaceholders(workflowName, workflowJson) {
         for (const [inputName, inputValue] of Object.entries(node.inputs)) {
             const rules = findMatchingRulesForNode(workflowName, node, inputName);
             for (const rule of rules) {
-                if (rule.placeholder === inputValue) break;
+                if (rule.placeholder === inputValue.value) continue;
                 updatedWorkflow = replaceInputWithPlaceholder(updatedWorkflow, node.id, inputName, rule.placeholder);
             }
         }

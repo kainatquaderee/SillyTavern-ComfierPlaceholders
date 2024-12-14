@@ -12,12 +12,11 @@ const t = SillyTavern.getContext().t;
  * @returns {HTMLButtonElement}
  */
 export function replaceButton(nodeId, nodeInputInfo) {
-    const log = `${nodeId}` === '5' && nodeInputInfo.value === '%sampler%';
+    const log = `${nodeId}` === '5';
 
     console.log(`[${EXTENSION_NAME}]`, 'Replace button for', nodeId);
     if (log) console.log(`[${EXTENSION_NAME}]`, 'Replace button for', nodeId, nodeInputInfo);
 
-    const placeholders = getCurrentPlaceholders();
     const placeholderValues = getPlaceholderOptionValues();
 
     const replaceButton = iconButton('Replace', 'square-caret-right');
@@ -26,19 +25,24 @@ export function replaceButton(nodeId, nodeInputInfo) {
     doneButton.disabled = true;
     doneButton.classList.add('disabled');
 
-    const oopsButton = iconButton('Oops', 'times', true);
-
-    const nodeMatchesPlaceholder = nodeInputInfo.value === `%${nodeInputInfo.placeholder}%`;
-    const noRuleAvailable = nodeInputInfo.placeholder === '';
-
     // want to know if the current value of the node is a placeholder that exists
     const currentValueValid = placeholderValues.includes(nodeInputInfo.value);
-    if (log) console.log(`[${EXTENSION_NAME}]`, 'valid:', currentValueValid, 'Current value:', nodeInputInfo.value, 'in placeholders:', placeholderValues);
+    if (log) console.log(`[${EXTENSION_NAME}]`, 'currentValueValid:', currentValueValid, 'Current value:', nodeInputInfo.value, 'in placeholders:', placeholderValues);
 
     // want to know if the proposed value is a placeholder that exists
-    const proposedValueValid = nodeInputInfo.placeholder in placeholders;
+    const proposedValueValid = placeholderValues.includes(nodeInputInfo.placeholder);
+    if (log) console.log(`[${EXTENSION_NAME}]`, 'proposedValueValid:', proposedValueValid, 'Current value:', nodeInputInfo.placeholder, 'in placeholders:', placeholderValues);
 
-    if (log) console.log(`[${EXTENSION_NAME}]`, 'Replace button for', nodeId, 'nodeId', nodeInputInfo, 'currentValueValid:', currentValueValid, 'proposedValueValid:', proposedValueValid, 'nodeMatchesPlaceholder:', nodeMatchesPlaceholder, 'noRuleAvailable:', noRuleAvailable);
+    // want to know if the current value is the same as the placeholder
+    const testval = `%${nodeInputInfo.placeholder}%`;
+    const nodeMatchesPlaceholder = nodeInputInfo.value === testval;
+    if (log) console.log(`[${EXTENSION_NAME}]`, 'nodeMatchesPlaceholder:', nodeMatchesPlaceholder, 'Current value:', nodeInputInfo.value, 'testval:', testval);
+
+    // want to know if there is no rule available for the current value
+    const noRuleAvailable = nodeInputInfo.placeholder === '';
+    if (log) console.log(`[${EXTENSION_NAME}]`, 'noRuleAvailable:', noRuleAvailable, 'Current value:', nodeInputInfo.placeholder);
+
+    console.log(`[${EXTENSION_NAME}]`, 'Replace button for', nodeId, 'nodeId', nodeInputInfo, 'nodeInputInfo', 'currentValueValid', currentValueValid, 'proposedValueValid', proposedValueValid, 'nodeMatchesPlaceholder', nodeMatchesPlaceholder, 'noRuleAvailable', noRuleAvailable);
 
     if (currentValueValid) {
         doneButton.classList.add('cp--currentValueValid');
@@ -50,6 +54,12 @@ export function replaceButton(nodeId, nodeInputInfo) {
         return replaceButton;
     }
     if (nodeMatchesPlaceholder) {
+        // user should either add the placeholder to the list or edit the rule
+        // perhaps if we allowed them to run the replacement rule dialog from here, that would be good
+        const oopsButton = iconButton('Oops', 'triangle-exclamation', true);
+        oopsButton.disabled = true;
+        oopsButton.classList.add('mes_edit_cancel');
+        oopsButton.title = 'Current value matches placeholder';
         oopsButton.classList.add('cp--nodeMatchesPlaceholder');
         return oopsButton;
     }
@@ -60,6 +70,8 @@ export function replaceButton(nodeId, nodeInputInfo) {
     }
 
     if (log) console.log(`[${EXTENSION_NAME}]`, 'Replace button for', nodeInputInfo);
+    const oopsButton = iconButton('Default', 'triangle-exclamation');
+    oopsButton.classList.add('mes_edit_cancel');
     oopsButton.classList.add('cp--default');
     return oopsButton;
 }
