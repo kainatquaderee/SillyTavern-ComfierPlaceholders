@@ -1,3 +1,4 @@
+import { getCurrentPlaceholders } from '../workflow/placeholders.js';
 
 /**
  * Show a dialog to add or edit a replacement rule
@@ -6,30 +7,16 @@
  */
 async function showReplacementRuleDialog(existingRule = null) {
     const context = SillyTavern.getContext();
-    /** @type {SillyTavernComfierPlaceholdersSettings} */
-    const settings = context.extensionSettings[settingsKey];
-
-    // Get placeholders from the current workflow
-    const currentPlaceholders = Object.keys(getCurrentPlaceholders());
-    currentPlaceholders.sort();
-
-    // Get unique placeholders from existing rules
-    const rulesPlaceholders = new Set(settings.replacements.map(r => r.placeholder));
-    rulesPlaceholders.delete(''); // Remove empty placeholders
-
-    // Add rules placeholders to the list of placeholders
-    for (const placeholder of rulesPlaceholders) {
-        currentPlaceholders.push(placeholder);
-    }
-
+    const rulesPlaceholders = Object.keys(getCurrentPlaceholders());
+    rulesPlaceholders.sort();
 
     const form = document.createElement('div');
     form.innerHTML = `
         <div class="flex-container flexFlowColumn">
-            <label>Workflow Name (optional):<input type="text" id="workflowName" class="text_pole"></label>
-            <label>Node Title (optional):<input type="text" id="nodeTitle" class="text_pole"></label>
-            <label>Node Class (optional):<input type="text" id="nodeClass" class="text_pole"></label>
-            <label>Input Name (optional):<input type="text" id="inputName" class="text_pole"></label>
+            <label>Workflow Name<input type="text" id="workflowName" class="text_pole optional"></label>
+            <label>Node Title<input type="text" id="nodeTitle" class="text_pole optional"></label>
+            <label>Node Class<input type="text" id="nodeClass" class="text_pole optional"></label>
+            <label>Input Name<input type="text" id="inputName" class="text_pole"></label>
             <label>Placeholder:
                 <div class="flex-container">
                     <select id="placeholderSelect" class="text_pole">
@@ -53,7 +40,7 @@ async function showReplacementRuleDialog(existingRule = null) {
         const placeholderSelect = form.querySelector('#placeholderSelect');
         const placeholderInput = form.querySelector('#placeholder');
 
-        if (rulesPlaceholders.has(existingRule.placeholder)) {
+        if (rulesPlaceholders.includes(existingRule.placeholder)) {
             placeholderSelect.value = existingRule.placeholder;
         } else {
             placeholderSelect.value = '';
@@ -68,17 +55,24 @@ async function showReplacementRuleDialog(existingRule = null) {
     const placeholderSelect = form.querySelector('#placeholderSelect');
     const placeholderInput = form.querySelector('#placeholder');
 
-    placeholderSelect.addEventListener('change', () => {
+    placeholderSelect.addEventListener('change', onPlaceholderSelectChange);
+
+    function onPlaceholderSelectChange() {
         if (placeholderSelect.value === '') {
             placeholderInput.style.display = 'block';
             placeholderInput.focus();
         } else {
             placeholderInput.style.display = 'none';
         }
-    });
+    }
+    onPlaceholderSelectChange();
 
-    const result = await context.callGenericPopup(form, context.POPUP_TYPE.CUSTOM);
-    if (!result) return null;
+    const okButton = existingRule ? 'Save' : 'Add';
+
+    const confirmation = await context.callGenericPopup(form, context.POPUP_TYPE.CONFIRM, 'Replacement Rule', { okButton });
+    if (confirmation !== context.POPUP_RESULT.AFFIRMATIVE) {
+        return null;
+    }
 
     return {
         workflowName: form.querySelector('#workflowName').value || null,
@@ -91,4 +85,3 @@ async function showReplacementRuleDialog(existingRule = null) {
 }
 
 export { showReplacementRuleDialog };
-import { settingsKey } from '../consts.js';

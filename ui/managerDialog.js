@@ -1,6 +1,27 @@
 import { settingsKey } from '../consts.js';
 import { showReplacementRuleDialog } from './replacementRuleDialog.js';
 
+const t = SillyTavern.getContext().t;
+
+function icon(faClass, title) {
+    const icon = document.createElement('i');
+    if (title) icon.title = t`${title}`;
+    icon.classList.add('fas', 'fa-fw', `fa-${faClass}`);
+    return icon;
+}
+
+function ruleFilter(className, text, title, faClass) {
+    faClass = faClass || 'asterisk';
+    const workflowIcon = icon(faClass, title);
+    workflowIcon.style.marginRight = '5px';
+    const workflowNameText = text || 'Any';
+    const workflowNameLabel = document.createElement('div');
+    workflowNameLabel.appendChild(workflowIcon);
+    workflowNameLabel.classList.add(className, 'tag_name');
+    workflowNameLabel.appendChild(document.createTextNode(workflowNameText));
+    return workflowNameLabel;
+}
+
 function createReplacementsList(settings, context) {
     const container = document.createElement('div');
     container.classList.add('replacements-list');
@@ -13,24 +34,36 @@ function createReplacementsList(settings, context) {
         settings.replacements.forEach((replacement, index) => {
             const card = document.createElement('div');
             card.classList.add('replacement-card');
-            card.style.border = '1px solid var(--border-color)';
+            card.style.border = '1px solid #666';
             card.style.borderRadius = '8px';
             card.style.padding = '10px';
-            card.style.backgroundColor = 'var(--background-color2)';
+            card.style.backgroundColor = '--SmartThemeBodyColor)';
 
-            card.innerHTML = `
-                <div style="display: grid; grid-template-columns: auto 1fr; gap: 8px; margin-bottom: 8px;">
-                    <strong>Workflow:</strong> <span>${replacement.workflowName || '(any)'}</span>
-                    <strong>Node Title:</strong> <span>${replacement.nodeTitle || '(any)'}</span>
-                    <strong>Node Class:</strong> <span>${replacement.nodeClass || '(any)'}</span>
-                    <strong>Input Name:</strong> <span>${replacement.inputName || '(any)'}</span>
-                    <strong>Placeholder:</strong> <span>%${replacement.placeholder}%</span>
-                    <strong>Description:</strong> <span>${replacement.description}</span>
-                </div>
-                <div style="text-align: right;">
-                    <button class="menu_button" data-index="${index}">Remove</button>
-                </div>
-            `;
+            const workflowNameLabel = ruleFilter('workflow-name', replacement.workflowName, 'Workflow Name', 'code-branch');
+            const nodeTitleLabel = ruleFilter('node-title', replacement.nodeTitle, 'Node Title', 'martini-glass');
+            const nodeClassLabel = ruleFilter('node-class', replacement.nodeClass, 'Node Class', 'code-commit');
+            const inputNameLabel = ruleFilter('input-name', replacement.inputName, 'Input Name', 'code');
+            const placeholderLabel = ruleFilter('placeholder', `%${replacement.placeholder}%`, 'Placeholder', 'percent');
+
+            const cardHeader = document.createElement('div');
+            const cardBody = document.createElement('div');
+            cardHeader.style.display = 'flex';
+            cardHeader.style.justifyContent = 'space-between';
+            cardHeader.style.alignItems = 'center';
+            cardHeader.style.marginBottom = '8px';
+            cardHeader.appendChild(document.createTextNode(replacement.description || 'No description'));
+            const removeButton = document.createElement('button');
+            removeButton.classList.add('menu_button');
+            removeButton.textContent = t`Remove`;
+            removeButton.dataset.index = `${index}`;
+            cardHeader.appendChild(removeButton);
+
+            cardBody.append(workflowNameLabel, nodeTitleLabel, nodeClassLabel, inputNameLabel, placeholderLabel);
+
+            cardBody.classList.add('flex-container', 'flexFlowColumn');
+
+            card.appendChild(cardHeader);
+            card.appendChild(cardBody);
 
             container.appendChild(card);
         });
@@ -81,7 +114,12 @@ async function showManagerDialog() {
     });
 
     dialog.append(header, addButton, container);
-    await context.callGenericPopup(dialog, context.POPUP_TYPE.TEXT, '', { wide: true, large: true, allowVerticalScrolling: true, okButton: 'Close' });
+    await context.callGenericPopup(dialog, context.POPUP_TYPE.TEXT, '', {
+        wide: true,
+        large: true,
+        allowVerticalScrolling: true,
+        okButton: 'Close',
+    });
 }
 
 export { showManagerDialog };

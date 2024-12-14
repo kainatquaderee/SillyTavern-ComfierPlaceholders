@@ -83,6 +83,7 @@ function injectReplacerButton() {
 
         const manageButton = document.createElement('button');
         manageButton.classList.add('menu_button');
+        manageButton.id = 'sd_comfy_workflow_editor_manage_button';
         manageButton.textContent = 'Manage...';
         manageButton.addEventListener('click', async () => {
             try {

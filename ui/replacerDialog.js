@@ -38,26 +38,72 @@ function onInputReplaceClick(btn, id, name, nodeInput) {
     }
 }
 
+async function onAddRuleClick(actionButton) {
+    console.log(`[${EXTENSION_NAME}] Add rule clicked`, actionButton, 'this:', this);
+    const inputRow = this.closest('.input-row');
+    const nodeInputInfo = inputRow.nodeInputInfo;
+    const inputName = nodeInputInfo.name;
+
+    const node = this.closest('.node-item').nodeInfo;
+    const workflowElement = document.getElementById('sd_comfy_workflow_editor_workflow');
+    const workflowName = document.getElementById('sd_comfy_workflow_editor_name')?.textContent;
+
+    console.log(`[${EXTENSION_NAME}] Add rule for input`, inputName, 'in node', node.title, 'workflow', workflowName, 'workflowElement:', workflowElement);
+
+    const newRule = await showReplacementRuleDialog({
+        workflowName,
+        nodeTitle: node.title,
+        nodeClass: node.class_type,
+        inputName: inputName,
+        placeholder: inputName,
+        description: `${node.title} ${inputName}`,
+    });
+
+    if (newRule) {
+        const context = SillyTavern.getContext();
+        const settings = context.extensionSettings[settingsKey];
+        const nodeId = inputRow.closest('.node-item').nodeInfo.id;
+        settings.replacements.push(newRule);
+        context.saveSettingsDebounced();
+
+        // Update button state
+        this.classList.remove('no-rule');
+        this.classList.add('can-replace');
+        this.textContent = 'Replace';
+        nodeInputInfo.placeholder = newRule.placeholder;
+        const inputPlaceholder = inputRow.querySelector('.input-placeholder');
+        inputPlaceholder.textContent = newRule.placeholder;
+
+        // Remove old handler and add new one for replacement
+        this.removeEventListener('click', onAddRuleClick);
+        this.addEventListener('click', () => {
+            onInputReplaceClick(this, nodeId, inputName, nodeInputInfo);
+        });
+    }
+}
+
 /**
  * Create an input element
- * @param id
- * @param name
- * @param {NodeInput} nodeInput
+ * @param nodeId
+ * @param inputName
+ * @param {NodeInputInfo} nodeInputInfo
  * @returns {HTMLDivElement}
  */
-function createInputElement(id, name, nodeInput) {
+function createInputElement(nodeId, inputName, nodeInputInfo) {
     const inputRow = document.createElement('div');
+    Object.assign(inputRow, { nodeInputInfo });
+
     // , 'flex-container', 'gap10', 'alignItemsCenter'
     inputRow.classList.add('input-row', 'flex-container', 'alignItemsCenter');
 
     const actionButton = document.createElement('button');
     actionButton.classList.add('menu_button', 'menu_button_icon');
 
-    if (nodeInput.value === `%${nodeInput.placeholder}%`) {
+    if (nodeInputInfo.value === `%${nodeInputInfo.placeholder}%`) {
         actionButton.disabled = true;
         actionButton.classList.add('disabled');
         actionButton.textContent = 'Replaced';
-    } else if (nodeInput.placeholder === '') {
+    } else if (nodeInputInfo.placeholder === '') {
         actionButton.classList.add('no-rule');
         const icon = document.createElement('i');
         icon.classList.add('fas', 'fa-plus');
@@ -65,51 +111,20 @@ function createInputElement(id, name, nodeInput) {
         const text = document.createElement('span');
         text.textContent = 'Add rule';
         actionButton.appendChild(text);
-        const addRuleHandler = async function() {
-            const node = this.closest('.node-item').nodeInfo;
-            const workflowElement = document.getElementById('sd_comfy_workflow_editor_workflow');
-            const workflowName = workflowElement?.dataset?.workflowName || null;
-            const newRule = await showReplacementRuleDialog({
-                workflowName,
-                nodeTitle: node.title,
-                nodeClass: node.class_type,
-                inputName: name,
-                placeholder: name,
-                description: `${node.title} ${name}`,
-            });
 
-            if (newRule) {
-                const context = SillyTavern.getContext();
-                const settings = context.extensionSettings[settingsKey];
-                settings.replacements.push(newRule);
-                context.saveSettingsDebounced();
 
-                // Update button state
-                actionButton.classList.remove('no-rule');
-                actionButton.classList.add('can-replace');
-                actionButton.textContent = 'Replace';
-                nodeInput.placeholder = newRule.placeholder;
-                inputPlaceholder.textContent = newRule.placeholder;
-
-                // Remove old handler and add new one for replacement
-                actionButton.removeEventListener('click', addRuleHandler);
-                actionButton.addEventListener('click', (e) => {
-                    onInputReplaceClick(actionButton, id, name, nodeInput);
-                });
-            }
-        };
-        actionButton.addEventListener('click', addRuleHandler);
+        actionButton.addEventListener('click', onAddRuleClick);
     } else {
         actionButton.classList.add('can-replace');
         const icon = document.createElement('i');
         icon.classList.add('fas', 'fa-square-caret-right');
         actionButton.appendChild(icon);
         const text = document.createElement('code');
-        text.title = t`Replace input value with placeholder: %${nodeInput.placeholder}%`;
-        text.textContent = nodeInput.placeholder;
+        text.title = t`Replace input value with placeholder: %${nodeInputInfo.placeholder}%`;
+        text.textContent = nodeInputInfo.placeholder;
         actionButton.appendChild(text);
         actionButton.addEventListener('click', (e) => {
-            onInputReplaceClick(actionButton, id, name, nodeInput);
+            onInputReplaceClick(actionButton, nodeId, inputName, nodeInputInfo);
         });
     }
 
@@ -120,22 +135,22 @@ function createInputElement(id, name, nodeInput) {
     actionButton.style.flex = '0 0 25%';
     actionButton.classList.add('justifyLeft');
 
-    const inputName = document.createElement('code');
-    inputName.textContent = nodeInput.name;
-    inputName.classList.add('input-name', 'flexBasis25p', 'justifyLeft');
+    const inputComfyName = document.createElement('code');
+    inputComfyName.textContent = nodeInputInfo.name;
+    inputComfyName.classList.add('input-name', 'flexBasis25p', 'justifyLeft');
     // inputName.style.flex = '0 0 20%';
 
     const inputPlaceholder = document.createElement('code');
-    inputPlaceholder.textContent = nodeInput.placeholder;
+    inputPlaceholder.textContent = nodeInputInfo.placeholder;
     inputPlaceholder.classList.add('input-placeholder', 'flexBasis25p', 'justifyLeft');
     // inputName.style.flex = '0 0 20%';
 
     const inputValue = document.createElement('span');
-    inputValue.textContent = nodeInput.value;
+    inputValue.textContent = nodeInputInfo.value;
     inputValue.classList.add('input-value', 'overflow-hidden');
 
     // nameValue.append(inputName, inputPlaceholder, inputValue);
-    inputRow.append(inputName, actionButton, inputValue);
+    inputRow.append(inputComfyName, actionButton, inputValue);
     return inputRow;
 }
 

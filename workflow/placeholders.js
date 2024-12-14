@@ -1,3 +1,5 @@
+import { EXTENSION_NAME } from '../consts.js';
+
 /**
  * @typedef {Object} PlaceholderInfo
  * @property {string} find - Placeholder to find, without %%
@@ -41,7 +43,8 @@ function getCurrentPlaceholders() {
             valid: true,
         };
     }
-    return placeholders.map(makePlaceholderInfo);
+    console.log(`[${EXTENSION_NAME}]`, 'Current placeholders:', placeholders);
+    return placeholders;
 }
 
 /**
@@ -63,3 +66,5 @@ function makePlaceholderInfo(args) {
         valid: false,
     };
 }
+
+export { getCurrentPlaceholders };

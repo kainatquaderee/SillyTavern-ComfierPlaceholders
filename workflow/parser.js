@@ -9,7 +9,7 @@ import { settingsKey } from '../consts.js';
  */
 
 /**
- * @typedef {Object} NodeInput
+ * @typedef {Object} NodeInputInfo
  * @property {string} name - Input name
  * @property {string} value - Input value
  * @property {string} placeholder - Placeholder to replace
@@ -20,7 +20,7 @@ import { settingsKey } from '../consts.js';
  * @property {string} id - Node ID
  * @property {string} title - Node title
  * @property {string} class_type - Node
- * @property {Record<string,NodeInput>} inputs - Node inputs
+ * @property {Record<string,NodeInputInfo>} inputs - Node inputs
  */
 
 /**
@@ -114,7 +114,7 @@ function makeNodeInfo(nodeId, title, class_type, inputs) {
  *
  * @param inputName
  * @param value
- * @returns {NodeInput}
+ * @returns {NodeInputInfo}
  */
 function makeNodeInput(inputName, value) {
     return {
