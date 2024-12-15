@@ -12,9 +12,6 @@ Examples:
 - For Flux_txt2img.json, node titled "CLIP Loader", input "clip_name1" should be replaced with "%clip%"
 
 TODO list:
-- allow the user to select an input and add a change rule for it
-- save the list of rules to the extension settings so they can be reused
-- allow global and per-workflow placeholders
 - check for placeholders in the workflow that are not in the list and prompt the user to add them
 */
 

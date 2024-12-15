@@ -15,6 +15,7 @@ function ruleFilter(className, text, title, faClass) {
     workflowNameLabel.appendChild(workflowIcon);
     workflowNameLabel.classList.add(className, 'tag_name');
     workflowNameLabel.appendChild(document.createTextNode(workflowNameText));
+    workflowNameLabel.isAny = !text;
     return workflowNameLabel;
 }
 
@@ -101,7 +102,9 @@ function createReplacementCard(replacement, index, onEditButtonClick, onRemoveBu
     cardHeader.appendChild(removeButton);
 
     const cardBody = document.createElement('div');
-    cardBody.append(workflowNameLabel, nodeTitleLabel, nodeClassLabel, inputNameLabel, placeholderLabel);
+    workflowNameLabel.isAny || cardBody.appendChild(workflowNameLabel);
+    nodeTitleLabel.isAny || cardBody.appendChild(nodeTitleLabel);
+    cardBody.append(nodeClassLabel, inputNameLabel, placeholderLabel);
     cardBody.classList.add('flex-container', 'flexFlowColumn');
 
     card.appendChild(cardHeader);
@@ -121,7 +124,34 @@ function createReplacementsList() {
 
     function renderReplacements() {
         container.innerHTML = '';
-        settings.replacements.forEach((replacement, index) => {
+        const replacements = settings.replacements;
+        replacements.sort((a, b) => {
+            a.workflowName = a.workflowName || '';
+            b.workflowName = b.workflowName || '';
+            a.nodeTitle = a.nodeTitle || '';
+            b.nodeTitle = b.nodeTitle || '';
+            a.nodeClass = a.nodeClass || '';
+            b.nodeClass = b.nodeClass || '';
+            a.inputName = a.inputName || '';
+            b.inputName = b.inputName || '';
+            a.placeholder = a.placeholder || '';
+            b.placeholder = b.placeholder || '';
+
+            if (a.workflowName !== b.workflowName) {
+                return a.workflowName.localeCompare(b.workflowName);
+            }
+            if (a.nodeTitle !== b.nodeTitle) {
+                return a.nodeTitle.localeCompare(b.nodeTitle);
+            }
+            if (a.nodeClass !== b.nodeClass) {
+                return a.nodeClass.localeCompare(b.nodeClass);
+            }
+            if (a.inputName !== b.inputName) {
+                return a.inputName.localeCompare(b.inputName);
+            }
+            return a.placeholder.localeCompare(b.placeholder);
+        });
+        replacements.forEach((replacement, index) => {
             const onEdit = () => onEditButtonClick.call({ dataset: { index } }, renderReplacements);
             const onRemove = () => onRemoveButtonClick.call({ dataset: { index } }, renderReplacements);
             const card = createReplacementCard(replacement, index, onEdit, onRemove);
@@ -143,14 +173,51 @@ async function showManagerDialog() {
     const header = document.createElement('div');
     header.style.marginBottom = '1em';
     const h3 = document.createElement('h3');
-    h3.textContent = t`Manage replacements`;
+    h3.textContent = t`Manage replacement rules`;
     header.appendChild(h3);
 
     const addButton = iconButton(t`Add rule`, 'plus');
-    addButton.style.alignSelf = 'flex-start';
     addButton.addEventListener('click', onAddRuleClick);
 
-    const { container, renderReplacements } = createReplacementsList();
+    const exportButton = iconButton(t`Export rules`, 'file-export');
+    exportButton.addEventListener('click', onExportRulesClick);
+
+    const importButton = iconButton(t`Import rules`, 'file-import');
+    importButton.addEventListener('click', onImportRulesClick);
+
+    async function onImportRulesClick() {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.json';
+        input.addEventListener('change', async () => {
+            const file = input.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                try {
+                    const replacements = JSON.parse(e.target.result);
+                    if (!Array.isArray(replacements)) {
+                        throw new Error('Invalid JSON');
+                    }
+                    settings.replacements = replacements;
+                    context.saveSettingsDebounced();
+                    renderReplacements();
+                } catch (error) {
+                    console.error('Failed to import replacements:', error);
+                    alert('Failed to import replacements');
+                }
+            };
+            reader.readAsText(file);
+        });
+        input.click();
+    }
+    function onExportRulesClick() {
+        const data = `data:text/json;charset=utf-8,${encodeURIComponent(JSON.stringify(settings.replacements, null, 2))}`;
+        const a = document.createElement('a');
+        a.setAttribute('href', data);
+        a.setAttribute('download', 'replacements.json');
+        a.click();
+    }
     async function onAddRuleClick() {
         const newReplacement = await showReplacementRuleDialog();
         if (!newReplacement) return;
@@ -160,7 +227,13 @@ async function showManagerDialog() {
         renderReplacements();
     }
 
-    dialog.append(header, addButton, container);
+    const { container, renderReplacements } = createReplacementsList();
+
+    const controls = document.createElement('div');
+    controls.classList.add('flex-container', 'flexFlowRow', 'alignItemsCenter', 'justifySpaceBetween');
+    controls.append(addButton, importButton, exportButton);
+
+    dialog.append(header, controls, container);
     await context.callGenericPopup(dialog, context.POPUP_TYPE.TEXT, '', {
         wide: true,
         large: true,

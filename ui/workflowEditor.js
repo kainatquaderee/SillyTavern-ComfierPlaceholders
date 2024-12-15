@@ -52,16 +52,13 @@ function injectReplacerButton() {
 
         const replacerSection = document.createElement('div');
         replacerSection.classList.add('sd_comfy_workflow_editor_replacer_section', 'flex-container', 'flexFlowColumn', 'alignItemsCenter');
+        const h4 = document.createElement('h4');
+        h4.textContent = 'Replacer';
 
-        const replacerButton = document.createElement('button');
-        replacerButton.classList.add('menu_button', 'menu_button_icon', 'whitespacenowrap');
-        replacerButton.id = 'sd_comfy_workflow_editor_replacer_button';
-        const icon = document.createElement('i');
-        icon.classList.add('fas', 'fa-exchange-alt');
-        replacerButton.appendChild(icon);
-        const text = document.createElement('span');
-        text.textContent = t`Replace...`;
-        replacerButton.appendChild(text);
+        const replacerButton = iconButton('Replace...', 'forward', {
+            id: 'sd_comfy_workflow_editor_replacer_button',
+            title: 'Replace...',
+        });
         replacerButton.addEventListener('click', handleReplacerButtonClick);
 
         const zapButton = iconButton('Replace all', 'bolt', {
@@ -83,10 +80,7 @@ function injectReplacerButton() {
             }
         });
 
-        replacerSection.appendChild(zapButton);
-        replacerSection.appendChild(replacerButton);
-        replacerSection.appendChild(manageButton);
-
+        replacerSection.append(h4,  zapButton, replacerButton, manageButton);
         container.appendChild(replacerSection);
     }, 100);
 }
