@@ -3,7 +3,7 @@ import { EXTENSION_NAME, settingsKey } from '../consts.js';
 import { showReplacementRuleDialog } from './replacementRuleDialog.js';
 import { currentWorkflowContent, currentWorkflowName, updateCurrentWorkflow } from '../workflow/workflows.js';
 import { replaceButton } from './replaceButton.js';
-import { getCurrentPlaceholders, addCustomPlaceholderToSD } from '../workflow/placeholders.js';
+import { addCustomPlaceholderToSD } from '../workflow/placeholders.js';
 
 const t = SillyTavern.getContext().t;
 
@@ -17,13 +17,11 @@ const t = SillyTavern.getContext().t;
 export function onInputReplaceClick(id, name, nodeInput, event) {
     const target = event.target;
     console.log(`[${EXTENSION_NAME}] Replace input`, target, id, name, nodeInput.suggested);
-    // Replace input value with placeholder
+
     try {
         updateCurrentWorkflow(id, name, nodeInput.suggested);
 
-        // can we just rewrite the entire nodes-list-block?
         const nodeBlock = target.closest('.nodes-list-block');
-        console.log(`[${EXTENSION_NAME}] Node block`, nodeBlock);
         const newNodesBlock = createNodesList();
         nodeBlock.replaceWith(newNodesBlock);
     } catch (error) {
@@ -96,26 +94,17 @@ function createInputElement(nodeId, inputName, nodeInputInfo) {
 
     inputRow.classList.add('input-row', 'flex-container', 'alignItemsCenter');
 
-    // const actionButton = document.createElement('button');
-    // actionButton.classList.add('menu_button', 'menu_button_icon');
-
-    // Input name and value
-    // const nameValue = document.createElement('div');
-    // nameValue.classList.add('input-nvp', 'whitespacenowrap', 'overflowHidden');
-
-    const actionButton = replaceButton(nodeId, nodeInputInfo);
-    actionButton.style.flex = '0 0 25%';
-    actionButton.classList.add('justifyLeft');
-
     const inputComfyName = document.createElement('code');
     inputComfyName.textContent = nodeInputInfo.name;
-    inputComfyName.classList.add('input-name', 'flexBasis25p', 'justifyLeft');
-    // inputName.style.flex = '0 0 20%';
+    inputComfyName.style.flexBasis = '30%';
+    inputComfyName.classList.add('input-name', 'justifyLeft');
 
-    const inputPlaceholder = document.createElement('code');
-    inputPlaceholder.textContent = nodeInputInfo.suggested;
-    inputPlaceholder.classList.add('input-placeholder', 'flexBasis25p', 'justifyLeft');
-    // inputName.style.flex = '0 0 20%';
+    const actionButton = replaceButton(nodeId, nodeInputInfo);
+    actionButton.classList.add('justifyLeft');
+
+    // const inputPlaceholder = document.createElement('code');
+    // inputPlaceholder.textContent = nodeInputInfo.suggested;
+    // inputPlaceholder.classList.add('input-placeholder', 'justifyLeft');
 
     const inputValue = document.createElement('span');
     inputValue.textContent = nodeInputInfo.value;
@@ -143,6 +132,7 @@ function createNodeElement(nodeInfo) {
     // Create header
     const header = document.createElement('div');
     header.classList.add('node-header');
+    header.style.marginBottom = '10px';
     const title = document.createElement('h4');
     title.textContent = nodeInfo.title;
     title.classList.add('node-title');
@@ -151,7 +141,8 @@ function createNodeElement(nodeInfo) {
     if (nodeInfo.title !== nodeInfo.class_type) {
         const subtitle = document.createElement('i');
         subtitle.textContent = nodeInfo.class_type;
-        subtitle.classList.add('node-subtitle', 'small');
+        subtitle.classList.add('node-subtitle');
+        subtitle.style.fontSize = '0.8em';
         header.appendChild(subtitle);
     }
 
@@ -160,7 +151,6 @@ function createNodeElement(nodeInfo) {
     inputsContainer.classList.add('node-inputs');
 
     // Add each input
-    console.log(`[${EXTENSION_NAME}] Node:`, nodeInfo, 'Inputs:', nodeInfo.inputs);
     Object.entries(nodeInfo.inputs).forEach(([name, nodeInput]) => {
         inputsContainer.appendChild(createInputElement(nodeInfo.id, name, nodeInput));
     });
@@ -184,7 +174,6 @@ function createNodesList() {
     const nodesList = document.createElement('div');
     nodesList.classList.add('nodes-list');
 
-    console.log(`[${EXTENSION_NAME}] Nodes:`, nodes);
     if (nodes.length === 0) {
         const noNodes = document.createElement('h4');
         noNodes.textContent = t`No nodes found`;

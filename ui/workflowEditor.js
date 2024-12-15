@@ -27,7 +27,6 @@ async function handleReplacerButtonClick() {
 }
 
 async function handleZapButtonClick() {
-    // const context = SillyTavern.getContext();
     const workflowName = currentWorkflowName();
     const workflowElement = document.getElementById('sd_comfy_workflow_editor_workflow');
     const workflowJson = currentWorkflowContent();
@@ -95,64 +94,52 @@ async function handleSaveAsClick() {
     }
 }
 
+/**
+ * Get the name of the other workflow in the savedAs settings
+ *
+ * @param workflowName
+ * @returns {string|null} The name of the other workflow
+ */
 function otherWorkflowName(workflowName) {
     const context = SillyTavern.getContext();
+
+    /** @type {SillyTavernComfierPlaceholdersSettings} */
     const settings = context.extensionSettings[settingsKey];
+
     const savedAs = settings.savedAs[workflowName];
-    if (savedAs?.apiWorkflowName === workflowName) {
-        return savedAs.dstWorkflowName;
-    }
+    if (savedAs?.apiWorkflowName === workflowName) return savedAs.dstWorkflowName;
     const dstSavedAs = Object.entries(settings.savedAs).find(([_, savedAs]) => savedAs.dstWorkflowName === workflowName);
-    if (dstSavedAs) {
-        return dstSavedAs[0];
-    }
+    if (dstSavedAs) return dstSavedAs[0];
     return null;
 }
 
+/**
+ * Switch to the other workflow in the savedAs settings
+ * As with many things, this is a hack and there would be a better way
+ *
+ * @param e
+ * @returns {Promise<void>}
+ */
 async function onSwitchViewClick(e) {
     /** @type {HTMLElement} */
     const target = e.target;
-    const context = SillyTavern.getContext();
-    const settings = context.extensionSettings[settingsKey];
     const workflowName = currentWorkflowName();
 
-    // forwards, is the currentWorkflowName() savedAs.apiWorkflowName
-    // backwards, is the currentWorkflowName() savedAs.dstWorkflowName
-
     async function switcheroo(wfName) {
-        if (!wfName) {
-            console.warn(`[${EXTENSION_NAME}]`, 'switcheroo No workflow name provided');
-            return;
-        }
-        console.log(`[${EXTENSION_NAME}]`, 'Switching to:', wfName, 'changing workflow:', wfName);
+        console.log(`[${EXTENSION_NAME}]`, 'Switching to:', wfName);
         await changeWorkflow(wfName);
 
         const cancelButton = target.closest('.popup').querySelector('.popup-button-cancel');
-        console.log(`[${EXTENSION_NAME}]`, 'Switching to:', wfName, 'clicking cancel button:', cancelButton);
         cancelButton.click();
-
-        console.log(`[${EXTENSION_NAME}]`, 'Switching to:', wfName, 'delay');
 
         await delay(500);
 
-        console.log(`[${EXTENSION_NAME}]`, 'Switching to:', wfName, 'clicking replacer button');
-
         const replacerButton = document.getElementById('sd_comfy_open_workflow_editor');
         replacerButton.click();
-
-        // maybe: extension_settings.sd.comfy_workflow
     }
 
-    const apiSavedAs = settings.savedAs[workflowName];
-    if (apiSavedAs?.apiWorkflowName === workflowName) {
-        await switcheroo(apiSavedAs.dstWorkflowName);
-        return;
-    }
-    const dstSavedAs = Object.entries(settings.savedAs).find(([_, savedAs]) => savedAs.dstWorkflowName === workflowName);
-    if (dstSavedAs) {
-        // switch to apiWorkflowName
-        const apiWorkflowName = dstSavedAs[0];
-        await switcheroo(apiWorkflowName);
+    if (otherWorkflowName(workflowName)) {
+        await switcheroo(otherWorkflowName(workflowName));
         return;
     }
     console.warn(`[${EXTENSION_NAME}]`, 'Could not find a saved workflow to switch to');
@@ -161,39 +148,39 @@ async function onSwitchViewClick(e) {
 
 function renderReplacerControls() {
     const replacerSection = document.createElement('div');
-    replacerSection.classList.add('sd_comfy_workflow_editor_replacer_section', 'flex-container', 'flexFlowColumn', 'alignItemsCenter');
+    replacerSection.classList.add('sd_comfy_workflow_editor_replacer_section', 'flex-container', 'flexFlowColumn', 'indent20p');
+
     const h4 = document.createElement('h4');
     h4.textContent = 'Replacer';
 
     const replacerButton = iconButton('Replace...', 'forward', {
-        id: 'sd_comfy_workflow_editor_replacer_button',
-        title: 'Replace...',
+        id: 'comfier--replacer_button',
+        title: 'Replace individual placeholders',
     });
     replacerButton.addEventListener('click', handleReplacerButtonClick);
 
     const zapButton = iconButton('Replace all', 'bolt', {
-        id: 'sd_comfy_workflow_editor_zap_button',
-        title: 'Replace all',
+        id: 'comfier--zap_button',
+        title: 'Replace all placeholders',
     });
     zapButton.addEventListener('click', handleZapButtonClick);
 
     const saveAsButton = iconButton('Save as...', 'save', {
-        id: 'sd_comfy_workflow_editor_save_as_button',
-        title: 'Save as...',
+        id: 'comfier--save_as_button',
+        title: 'Save workflow as a new file',
     });
-
     saveAsButton.addEventListener('click', handleSaveAsClick);
 
     const other = !!otherWorkflowName(currentWorkflowName());
 
     const switchViewButton = other ? iconButton('Switch', 'exchange', {
-        title: 'Switch view',
+        title: 'Switch to the other workflow',
     }) : null;
     if (switchViewButton) switchViewButton.addEventListener('click', onSwitchViewClick);
 
-    const manageButton = iconButton('Manage...', 'list-check', {
-        id: 'sd_comfy_workflow_editor_manage_button',
-        title: 'Manage...',
+    const manageButton = iconButton('Manage', 'list-check', {
+        id: 'comfier--manage_button',
+        title: 'Manage replacement rules',
     });
     manageButton.addEventListener('click', async () => {
         try {
