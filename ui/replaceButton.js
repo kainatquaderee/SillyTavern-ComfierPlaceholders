@@ -10,10 +10,10 @@ import { onInputReplaceClick, onAddRuleClick, onAddCustomPlaceholder } from './r
  * @returns {HTMLButtonElement}
  */
 export function replaceButton(nodeId, nodeInputInfo) {
-    const log = `${nodeId}` === '5';
+    const log = false;
 
-    console.log(`[${EXTENSION_NAME}]`, 'Replace button for', nodeId);
-    if (log) console.log(`[${EXTENSION_NAME}]`, 'Replace button for', nodeId, nodeInputInfo);
+    // console.log(`[${EXTENSION_NAME}]`, 'Replace button for', nodeId);
+    // if (log) console.log(`[${EXTENSION_NAME}]`, 'Replace button for', nodeId, nodeInputInfo);
 
     const placeholderValues = getPlaceholderOptionValues();
 

@@ -30,13 +30,21 @@ import { injectReplacerButton } from './ui/workflowEditor.js';
  */
 
 /**
+ * @typedef {Object} SavedVersion
+ * @property {string} apiWorkflowName - Name of the source workflow
+ * @property {string} dstWorkflowName - Name of the destination workflow
+ */
+
+/**
  * @type {SillyTavernComfierPlaceholdersSettings}
  * @typedef {Object} SillyTavernComfierPlaceholdersSettings
  * @property {boolean} enabled Whether the extension is enabled
+ * @property {Record<string,SavedVersion>} savedAs Saved versions of workflows
  * @property {ReplacementRule[]} replacements List of replacement rules
  */
 const defaultSettings = Object.freeze({
     enabled: true,
+    savedAs: {},
     replacements: [
         // Default replacements extracted from sample workflows
         {

@@ -1,7 +1,7 @@
 import { settingsKey } from '../consts.js';
 import { showReplacementRuleDialog } from './replacementRuleDialog.js';
 import { icon } from './icon.js';
-import { iconButton } from './iconButton.js';
+import { ButtonType, iconButton } from './iconButton.js';
 import { EXTENSION_NAME } from '../consts.js';
 
 const t = SillyTavern.getContext().t;
@@ -90,12 +90,12 @@ function createReplacementCard(replacement, index, onEditButtonClick, onRemoveBu
     cardDescription.classList.add('flexGrow', 'justifyLeft');
     cardHeader.appendChild(cardDescription);
 
-    const editButton = iconButton('Edit', 'edit', true);
+    const editButton = iconButton('Edit', 'edit', { srOnly: true });
     editButton.dataset.index = `${index}`;
     editButton.addEventListener('click', onEditButtonClick);
     cardHeader.appendChild(editButton);
 
-    const removeButton = iconButton('Remove', 'trash-alt', true);
+    const removeButton = iconButton('Remove', 'trash-alt', { srOnly: true, buttonType: ButtonType.DANGER });
     removeButton.dataset.index = `${index}`;
     removeButton.classList.add('remove-button', 'text-danger');
     removeButton.addEventListener('click', onRemoveButtonClick);

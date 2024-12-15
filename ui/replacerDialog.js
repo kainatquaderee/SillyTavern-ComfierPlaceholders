@@ -185,7 +185,15 @@ function createNodesList() {
     nodesList.classList.add('nodes-list');
 
     console.log(`[${EXTENSION_NAME}] Nodes:`, nodes);
-    nodes.filter(node => Object.keys(node.inputs).length > 0).forEach(node => {
+    if (nodes.length === 0) {
+        const noNodes = document.createElement('h4');
+        noNodes.textContent = t`No nodes found`;
+        const p = document.createElement('p');
+        p.textContent = t`Is this a valid ComfyUI workflow saved in API mode?`;
+        nodesList.append(noNodes, p);
+    }
+    const nodesForDisplay = nodes.filter(node => Object.keys(node.inputs).length > 0);
+    nodesForDisplay.forEach(node => {
         nodesList.appendChild(createNodeElement(node));
     });
     nodesContainer.append(nodesList);
@@ -193,21 +201,12 @@ function createNodesList() {
 }
 
 function createReplacerDialog() {
-    const workflowName = currentWorkflowName();
-
-    // console.log(`[${EXTENSION_NAME}] Creating replacer dialog for workflow`, workflowName, 'workflowJson:', workflowJson);
-    console.log(`[${EXTENSION_NAME}] Creating replacer dialog for workflow`, workflowName);
-    // console.log(`[${EXTENSION_NAME}] getPlaceholderOptions`, getPlaceholderOptions());
-    console.log(`[${EXTENSION_NAME}] getCurrentPlaceholders`, getCurrentPlaceholders());
-
-    // Create dialog HTML
     const dialog = document.createElement('div');
     dialog.classList.add('comfier--replacer-dialog');
     const h3 = document.createElement('h3');
     h3.textContent = t`${EXTENSION_NAME}`;
     dialog.appendChild(h3);
 
-    // Add nodes to the list
     const nodesContainer = createNodesList();
     dialog.appendChild(nodesContainer);
 
