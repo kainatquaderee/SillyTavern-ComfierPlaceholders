@@ -1,7 +1,7 @@
 import { ButtonType, iconButton } from './iconButton.js';
 import { getPlaceholderOptionValues } from '../workflow/placeholders.js';
 import { EXTENSION_NAME } from '../consts.js';
-import { onInputReplaceClick, onAddRuleClick } from './replacerDialog.js';
+import { onInputReplaceClick, onAddRuleClick, onAddCustomPlaceholder } from './replacerDialog.js';
 
 /**
  * Replace button for an input
@@ -56,12 +56,13 @@ export function replaceButton(nodeId, nodeInputInfo) {
         // no rules to change it, don't know what rule might have been used
         // user should either add the placeholder to the list or edit the rule
 
-        const oopsButton = iconButton('Invalid', 'xmark', {
+        const addCustomPlaceholderButton = iconButton('Add custom', 'percent', {
             buttonType: ButtonType.DANGER,
             srOnly: true,
-            title: `Placeholder ${nodeInputInfo.value} is invalid` });
-        oopsButton.classList.add('cp--nodeMatchesPlaceholder');
-        return oopsButton;
+            title: `Add custom placeholder ${nodeInputInfo.value}` });
+        addCustomPlaceholderButton.classList.add('cp--nodeMatchesPlaceholder');
+        addCustomPlaceholderButton.addEventListener('click', (e) => onAddCustomPlaceholder(e, nodeInputInfo.value, nodeInputInfo.value));
+        return addCustomPlaceholderButton;
     }
     if (ruleAvailable) {
         // it's not broken yet, but would be if the suggested value is used

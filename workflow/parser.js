@@ -1,4 +1,5 @@
 import { settingsKey, EXTENSION_NAME } from '../consts.js';
+import { addCustomPlaceholderToSD, getPlaceholderOptionValues } from './placeholders.js';
 
 /**
  * @typedef {Object} WorkflowNode
@@ -9,14 +10,14 @@ import { settingsKey, EXTENSION_NAME } from '../consts.js';
  */
 
 /**
- * @typedef {Object} NodeInputInfo
+ * @typedef {Object} NodeInputInfo Input to a ComfyUI workflow node
  * @property {string} name - Input name
- * @property {string} value - Input value
- * @property {string} suggested - Suggested placeholder value from rules
+ * @property {string} value - Input value, either original constant or a placeholder
+ * @property {string} suggested - Suggested placeholder value from checking rules, with %%
  */
 
 /**
- * @typedef {Object} NodeInfo
+ * @typedef {Object} NodeInfo Node in a ComfyUI workflow
  * @property {string} id - Node ID
  * @property {string} title - Node title
  * @property {string} class_type - Node
@@ -164,11 +165,23 @@ function replaceAllPlaceholders(workflowName, workflowJson) {
     let updatedWorkflow = workflowJson;
 
     for (const node of nodes) {
+        // for (const [inputName, inputValue] of Object.entries(node.inputs)) {
+        //     const rules = findMatchingRulesForNode(workflowName, node, inputName);
+        //     for (const rule of rules) {
+        //         if (rule.placeholder === inputValue.value) continue;
+        //         updatedWorkflow = replaceInputWithPlaceholder(updatedWorkflow, node.id, inputName, rule.placeholder);
+        //     }
+        // }
+        // the parser already adds the suggested placeholder to the input, so we can just use that
         for (const [inputName, inputValue] of Object.entries(node.inputs)) {
-            const rules = findMatchingRulesForNode(workflowName, node, inputName);
-            for (const rule of rules) {
-                if (rule.placeholder === inputValue.value) continue;
-                updatedWorkflow = replaceInputWithPlaceholder(updatedWorkflow, node.id, inputName, rule.placeholder);
+            if (inputValue.suggested && inputValue.suggested !== inputValue.value) {
+                updatedWorkflow = replaceInputWithPlaceholder(updatedWorkflow, node.id, inputName, inputValue.suggested);
+            }
+            // does the placeholder exist or do we need to add it?
+            const placeholders = getPlaceholderOptionValues();
+            if (!placeholders.includes(inputValue.suggested)) {
+                console.log(`[${EXTENSION_NAME}]`, `Adding placeholder ${inputValue.suggested}`);
+                addCustomPlaceholderToSD({ find: inputValue.suggested, replace: inputValue.value, custom: true });
             }
         }
     }

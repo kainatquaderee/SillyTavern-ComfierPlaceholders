@@ -3,7 +3,7 @@ import { EXTENSION_NAME, settingsKey } from '../consts.js';
 import { showReplacementRuleDialog } from './replacementRuleDialog.js';
 import { currentWorkflowContent, currentWorkflowName, updateCurrentWorkflow } from '../workflow/workflows.js';
 import { replaceButton } from './replaceButton.js';
-import { getCurrentPlaceholders } from '../workflow/placeholders.js';
+import { getCurrentPlaceholders, addCustomPlaceholderToSD } from '../workflow/placeholders.js';
 
 const t = SillyTavern.getContext().t;
 
@@ -30,6 +30,25 @@ export function onInputReplaceClick(id, name, nodeInput, event) {
         console.error('Failed to replace input:', error);
         toastr.error(error.message, 'Failed to replace input');
     }
+}
+
+export async function onAddCustomPlaceholder(event, inputName, inputValue) {
+    console.log(`[${EXTENSION_NAME}] Add custom placeholder clicked`, event, 'this:', this);
+
+    const slugify = (str) => str.toLowerCase().replace(/ /g, '_').replace(/[^a-z0-9_]/g, '');
+    const placeholder = {
+        find: slugify(inputName),
+        replace: inputValue,
+        custom: true,
+    };
+
+    console.log(`[${EXTENSION_NAME}] Add custom placeholder for input`, inputName, placeholder);
+    addCustomPlaceholderToSD(placeholder);
+
+    const nodeBlock = event.target.closest('.nodes-list-block');
+    console.log(`[${EXTENSION_NAME}] Node block`, nodeBlock);
+    const newNodesBlock = createNodesList();
+    nodeBlock.replaceWith(newNodesBlock);
 }
 
 export async function onAddRuleClick(actionButton, nodeId, inputName) {

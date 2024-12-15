@@ -3,11 +3,13 @@ import { EXTENSION_NAME } from '../consts.js';
 /**
  * @typedef {Object} PlaceholderInfo
  * @property {string} find - Placeholder to find, without %%
- * @property {?string} replace - Value to replace the placeholder with, if custom
- * @property {boolean} custom - Custom placeholder
- * @property {boolean} present - Placeholder is present in the workflow
- * @property {boolean} valid - Placeholder is present in the editor's placeholder list
+ * @property {string} [replace] - Value to replace the placeholder with, if custom
+ * @property {boolean} [custom] - Custom placeholder
+ * @property {boolean} [present] - Placeholder is present in the workflow
+ * @property {boolean} [valid] - Placeholder is present in the editor's placeholder list
  */
+
+const slugify = (str) => str.toLowerCase().replace(/ /g, '_').replace(/[^a-z0-9_]/g, '');
 
 
 /**
@@ -95,4 +97,26 @@ function makePlaceholderInfo(args) {
     };
 }
 
-export { getCurrentPlaceholders, getPlaceholderOptions, makePlaceholderInfo };
+// end: code to rework
+
+/**
+ * Add a custom placeholder to the workflow editor
+ * @param {PlaceholderInfo} placeholder - Placeholder info
+ */
+function addCustomPlaceholderToSD(placeholder) {
+    const addBtn = document.getElementById('sd_comfy_workflow_editor_placeholder_add');
+
+    // get a blank placeholder in the DOM
+    addBtn.click();
+    const newPlaceholder = document.querySelector('#sd_comfy_workflow_editor_placeholder_list_custom > li:last-child');
+    const find = newPlaceholder.querySelector('.sd_comfy_workflow_editor_custom_find');
+    find.value = slugify(placeholder.find);
+    const replace = newPlaceholder.querySelector('.sd_comfy_workflow_editor_custom_replace');
+    replace.value = placeholder.replace;
+    find.dispatchEvent(new Event('input'));
+    replace.dispatchEvent(new Event('input'));
+    console.log(`[${EXTENSION_NAME}]`, 'addCustomPlaceholderToSD: ', placeholder);
+}
+
+
+export { getCurrentPlaceholders, getPlaceholderOptions, makePlaceholderInfo, addCustomPlaceholderToSD };

@@ -1,7 +1,7 @@
 import { createReplacerDialog } from './replacerDialog.js';
 import { showManagerDialog } from './managerDialog.js';
 import { replaceAllPlaceholders } from '../workflow/parser.js';
-import { currentWorkflowName, currentWorkflowContent } from '../workflow/workflows.js';
+import { currentWorkflowName, currentWorkflowContent, updateCurrentWorkflow } from '../workflow/workflows.js';
 import { EXTENSION_NAME } from '../consts.js';
 import { ButtonType, iconButton } from './iconButton.js';
 
@@ -21,9 +21,9 @@ async function handleReplacerButtonClick() {
 
 async function handleZapButtonClick() {
     // const context = SillyTavern.getContext();
-    const workflowName = document.getElementById('sd_comfy_workflow_editor_name')?.value;
+    const workflowName = currentWorkflowName();
     const workflowElement = document.getElementById('sd_comfy_workflow_editor_workflow');
-    const workflowJson = workflowElement?.value;
+    const workflowJson = currentWorkflowContent();
 
     if (!workflowJson) {
         alert('No workflow found');
