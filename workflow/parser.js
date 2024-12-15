@@ -176,12 +176,13 @@ function replaceAllPlaceholders(workflowName, workflowJson) {
         for (const [inputName, inputValue] of Object.entries(node.inputs)) {
             if (inputValue.suggested && inputValue.suggested !== inputValue.value) {
                 updatedWorkflow = replaceInputWithPlaceholder(updatedWorkflow, node.id, inputName, inputValue.suggested);
-            }
-            // does the placeholder exist or do we need to add it?
-            const placeholders = getPlaceholderOptionValues();
-            if (!placeholders.includes(inputValue.suggested)) {
-                console.log(`[${EXTENSION_NAME}]`, `Adding placeholder ${inputValue.suggested}`);
-                addCustomPlaceholderToSD({ find: inputValue.suggested, replace: inputValue.value, custom: true });
+
+                // does the placeholder exist or do we need to add it?
+                const placeholders = getPlaceholderOptionValues();
+                if (!placeholders.includes(inputValue.suggested)) {
+                    console.log(`[${EXTENSION_NAME}]`, `Adding placeholder ${inputValue.suggested}`);
+                    addCustomPlaceholderToSD({ find: inputValue.suggested, replace: inputValue.value, custom: true });
+                }
             }
         }
     }
