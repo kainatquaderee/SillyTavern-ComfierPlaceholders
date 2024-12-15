@@ -162,7 +162,6 @@ function createNodeElement(nodeInfo) {
 
 function createNodesList() {
     const workflowName = currentWorkflowName();
-    console.log(`[${EXTENSION_NAME}] Creating nodes list`, workflowName);
     const workflowJson = currentWorkflowContent();
     const nodes = parseWorkflow(workflowName, workflowJson);
 
