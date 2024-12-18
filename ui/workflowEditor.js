@@ -1,5 +1,5 @@
 import { createReplacerDialog } from './replacerDialog.js';
-import { showReplacementRuleManagerDialog } from './managerDialog.js';
+import { showReplacementRuleManagerDialog } from './ruleManagerDialog.js';
 import { replaceAllPlaceholders } from '../workflow/parser.js';
 import { currentWorkflowName, currentWorkflowContent, changeWorkflow, saveWorkflowAs } from '../workflow/workflows.js';
 import { EXTENSION_NAME, settingsKey } from '../consts.js';
