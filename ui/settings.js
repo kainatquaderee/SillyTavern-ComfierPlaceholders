@@ -55,8 +55,8 @@ function renderExtensionSettings() {
     manageButton.textContent = 'Manage Replacements';
     manageButton.style.marginTop = '10px';
     manageButton.addEventListener('click', () => {
-        import('./managerDialog.js').then(({ showManagerDialog }) => {
-            showManagerDialog();
+        import('./managerDialog.js').then(({ showReplacementRuleManagerDialog }) => {
+            showReplacementRuleManagerDialog();
         });
     });
     inlineDrawerContent.appendChild(manageButton);
