@@ -67,7 +67,7 @@ async function onRemoveButtonClick(callback) {
  * @param onRemoveButtonClick
  * @returns {HTMLDivElement}
  */
-function createReplacementCard(replacement, index, onEditButtonClick, onRemoveButtonClick) {
+function createReplacementRuleCard(replacement, index, onEditButtonClick, onRemoveButtonClick) {
     const card = document.createElement('div');
     card.classList.add('replacement-card');
     card.style.border = '1px solid #666';
@@ -112,7 +112,7 @@ function createReplacementCard(replacement, index, onEditButtonClick, onRemoveBu
     return card;
 }
 
-function createReplacementsList() {
+function createReplacementRulesList() {
     const context = SillyTavern.getContext();
     const settings = context.extensionSettings[settingsKey];
 
@@ -154,7 +154,7 @@ function createReplacementsList() {
         replacements.forEach((replacement, index) => {
             const onEdit = () => onEditButtonClick.call({ dataset: { index } }, renderReplacements);
             const onRemove = () => onRemoveButtonClick.call({ dataset: { index } }, renderReplacements);
-            const card = createReplacementCard(replacement, index, onEdit, onRemove);
+            const card = createReplacementRuleCard(replacement, index, onEdit, onRemove);
             container.appendChild(card);
         });
     }
@@ -163,7 +163,7 @@ function createReplacementsList() {
     return { container, renderReplacements };
 }
 
-async function showManagerDialog() {
+async function showReplacementRuleManagerDialog() {
     const context = SillyTavern.getContext();
     const settings = context.extensionSettings[settingsKey];
 
@@ -227,7 +227,7 @@ async function showManagerDialog() {
         renderReplacements();
     }
 
-    const { container, renderReplacements } = createReplacementsList();
+    const { container, renderReplacements } = createReplacementRulesList();
 
     const controls = document.createElement('div');
     controls.classList.add('flex-container', 'flexFlowRow', 'alignItemsCenter', 'justifySpaceBetween');
@@ -242,4 +242,4 @@ async function showManagerDialog() {
     });
 }
 
-export { showManagerDialog };
+export { showReplacementRuleManagerDialog };
