@@ -1,5 +1,5 @@
 import { createReplacerDialog } from './replacerDialog.js';
-import { showManagerDialog } from './managerDialog.js';
+import { showReplacementRuleManagerDialog } from './managerDialog.js';
 import { replaceAllPlaceholders } from '../workflow/parser.js';
 import { currentWorkflowName, currentWorkflowContent, changeWorkflow, saveWorkflowAs } from '../workflow/workflows.js';
 import { EXTENSION_NAME, settingsKey } from '../consts.js';
@@ -184,7 +184,7 @@ function renderReplacerControls() {
     });
     manageButton.addEventListener('click', async () => {
         try {
-            await showManagerDialog();
+            await showReplacementRuleManagerDialog();
         } catch (error) {
             console.error('Failed to show manager dialog:', error);
             toastr.error(error.message, 'Failed to show manager dialog');
