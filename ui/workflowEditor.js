@@ -192,11 +192,11 @@ function renderReplacerControls() {
     });
 
     // Add paired workflow label if one exists
-    const other = otherWorkflowName(currentWorkflowName());
-    if (other) {
+    const pairedWorkflow = otherWorkflowName(currentWorkflowName());
+    if (pairedWorkflow) {
         const pairedLabel = document.createElement('div');
         pairedLabel.classList.add('paired-workflow-label');
-        pairedLabel.textContent = `Paired with: ${other}`;
+        pairedLabel.textContent = `Paired with: ${pairedWorkflow}`;
         replacerSection.appendChild(pairedLabel);
     }
 
