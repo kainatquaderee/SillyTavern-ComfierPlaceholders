@@ -75,34 +75,31 @@ async function createAssociationRow(srcWorkflow, dstWorkflow) {
     });
     exportButton.addEventListener('click', async () => {
         try {
-            // temporary workaround: pack both workflows into a single object
+            // Download both workflows as separate files
             const srcWorkflowJsonStr = await getWorkflow(srcWorkflow);
             const dstWorkflowJsonStr = await getWorkflow(dstWorkflow);
 
-            console.log(`[${EXTENSION_NAME}]`,
-                `${srcWorkflow} JSON str (${typeof srcWorkflowJsonStr}):`,
-                srcWorkflowJsonStr);
+            // Create and trigger download for source workflow
+            const srcBlob = new Blob([srcWorkflowJsonStr], { type: 'application/json' });
+            const srcUrl = window.URL.createObjectURL(srcBlob);
+            const srcLink = document.createElement('a');
+            srcLink.href = srcUrl;
+            srcLink.download = srcWorkflow;
+            document.body.appendChild(srcLink);
+            srcLink.click();
+            document.body.removeChild(srcLink);
+            window.URL.revokeObjectURL(srcUrl);
 
-            const srcWorkflowJson = JSON.parse(srcWorkflowJsonStr.trim());
-            const dstWorkflowJson = JSON.parse(dstWorkflowJsonStr.trim());
-
-            console.log(`[${EXTENSION_NAME}]`,
-                `${srcWorkflow} JSON (${typeof srcWorkflowJson}):`,
-                srcWorkflowJson);
-
-            let value = { [srcWorkflow]: srcWorkflowJson, [dstWorkflow]: dstWorkflowJson };
-            console.log(`[${EXTENSION_NAME}]`, 'Exporting workflows:', value);
-            const content = JSON.stringify(value, null, 2);
-
-            const blob = new Blob([content], { type: 'application/json' });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `${srcWorkflow}_and_${dstWorkflow}`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            window.URL.revokeObjectURL(url);
+            // Create and trigger download for destination workflow
+            const dstBlob = new Blob([dstWorkflowJsonStr], { type: 'application/json' });
+            const dstUrl = window.URL.createObjectURL(dstBlob);
+            const dstLink = document.createElement('a');
+            dstLink.href = dstUrl;
+            dstLink.download = dstWorkflow;
+            document.body.appendChild(dstLink);
+            dstLink.click();
+            document.body.removeChild(dstLink);
+            window.URL.revokeObjectURL(dstUrl);
         } catch (error) {
             console.error('Failed to export workflows:', error);
             toastr.error(error.message, 'Export failed');
