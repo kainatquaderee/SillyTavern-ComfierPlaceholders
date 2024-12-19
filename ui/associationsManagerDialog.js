@@ -53,10 +53,14 @@ async function createAssociationRow(srcWorkflow, dstWorkflow) {
     srcLabel.addEventListener('click', async (e) => {
         e.preventDefault();
         if (srcExists) {
+            // Close all open popups first
+            document.querySelectorAll('.popup').forEach(popup => {
+                const cancelBtn = popup.querySelector('.popup-button-cancel');
+                if (cancelBtn) cancelBtn.click();
+            });
+            await delay(100);
             await changeWorkflow(srcWorkflow);
-            const cancelButton = row.closest('.popup').querySelector('.popup-button-cancel');
-            cancelButton.click();
-            await delay(500);
+            await delay(100);
             const editorButton = document.getElementById('sd_comfy_open_workflow_editor');
             editorButton.click();
         }
@@ -101,10 +105,14 @@ async function createAssociationRow(srcWorkflow, dstWorkflow) {
     dstLabel.addEventListener('click', async (e) => {
         e.preventDefault();
         if (dstExists) {
+            // Close all open popups first
+            document.querySelectorAll('.popup').forEach(popup => {
+                const cancelBtn = popup.querySelector('.popup-button-cancel');
+                if (cancelBtn) cancelBtn.click();
+            });
+            await delay(100);
             await changeWorkflow(dstWorkflow);
-            const cancelButton = row.closest('.popup').querySelector('.popup-button-cancel');
-            cancelButton.click();
-            await delay(500);
+            await delay(100);
             const editorButton = document.getElementById('sd_comfy_open_workflow_editor');
             editorButton.click();
         }
