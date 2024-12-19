@@ -18,3 +18,11 @@ files:
     readOnly: false
   - path: "comfier.less"
     readOnly: true
+---
+files:
+  - path: "ui/settings.js"
+    readOnly: false
+  - path: "ui/associationsManagerDialog.js"
+    readOnly: false
+  - path: "ui/replacementRuleDialog.js"
+    readOnly: false

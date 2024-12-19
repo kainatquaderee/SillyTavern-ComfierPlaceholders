@@ -60,6 +60,18 @@ function renderExtensionSettings() {
         });
     });
     inlineDrawerContent.appendChild(manageButton);
+
+    // Add Manage Associations button
+    const manageAssociationsButton = document.createElement('button');
+    manageAssociationsButton.classList.add('menu_button');
+    manageAssociationsButton.textContent = 'Manage Workflow Associations';
+    manageAssociationsButton.style.marginTop = '10px';
+    manageAssociationsButton.addEventListener('click', () => {
+        import('./associationsManagerDialog.js').then(({ showAssociationsManagerDialog }) => {
+            showAssociationsManagerDialog();
+        });
+    });
+    inlineDrawerContent.appendChild(manageAssociationsButton);
 }
 
 export { renderExtensionSettings, settingsKey, EXTENSION_NAME };
