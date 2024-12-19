@@ -17,7 +17,7 @@ See plan: [workflow_associations_manager.md](workflow_associations_manager_check
 - [x] Implement association removal
 - [x] Add workflow pair export functionality
 - [x] Update savedAs data structure handling
-- [ ] Add association update capabilities
+- [x] Add association update capabilities
 
 ## Integration
 - [x] Connect new dialog to workflow editor
