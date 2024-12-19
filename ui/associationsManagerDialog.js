@@ -29,26 +29,28 @@ function createAssociationRow(srcWorkflow, dstWorkflow) {
     buttonsContainer.style.gap = '5px';
 
     const exportButton = iconButton('Export', 'download', {
-        title: 'Export both workflows as zip',
+        title: 'Download both workflows',
         srOnly: true,
     });
     exportButton.addEventListener('click', async () => {
         try {
-            const response = await fetch('/api/sd/comfy/export-workflows', {
-                method: 'POST',
-                headers: context.getRequestHeaders(),
-                body: JSON.stringify({
-                    workflows: [srcWorkflow, dstWorkflow]
-                })
-            });
-            if (!response.ok) throw new Error(await response.text());
+            // Create a text file with both workflows
+            const srcResponse = await fetch(`/api/sd/comfy/load-workflow?filename=${encodeURIComponent(srcWorkflow)}`);
+            const dstResponse = await fetch(`/api/sd/comfy/load-workflow?filename=${encodeURIComponent(dstWorkflow)}`);
             
-            // Trigger download of the zip file
-            const blob = await response.blob();
+            if (!srcResponse.ok || !dstResponse.ok) {
+                throw new Error('Failed to load workflows');
+            }
+
+            const srcContent = await srcResponse.text();
+            const dstContent = await dstResponse.text();
+            
+            const content = `// Source workflow: ${srcWorkflow}\n${srcContent}\n\n// Destination workflow: ${dstWorkflow}\n${dstContent}`;
+            const blob = new Blob([content], {type: 'application/json'});
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `${srcWorkflow}_and_${dstWorkflow}.zip`;
+            a.download = `${srcWorkflow}_and_${dstWorkflow}.json`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
