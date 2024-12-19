@@ -23,19 +23,74 @@ function createAssociationRow(srcWorkflow, dstWorkflow) {
     dstLabel.textContent = dstWorkflow;
     dstLabel.style.flex = '1';
 
-    const removeButton = iconButton('Remove', 'trash', {
-        buttonType: ButtonType.DANGER,
+    const buttonsContainer = document.createElement('div');
+    buttonsContainer.style.display = 'flex';
+    buttonsContainer.style.gap = '5px';
+
+    const exportButton = iconButton('Export', 'download', {
+        title: 'Export both workflows as zip',
         srOnly: true,
     });
-    removeButton.addEventListener('click', () => {
-        const context = SillyTavern.getContext();
-        const settings = context.extensionSettings[settingsKey];
-        delete settings.savedAs[srcWorkflow];
-        context.saveSettingsDebounced();
-        row.remove();
+    exportButton.addEventListener('click', async () => {
+        try {
+            const response = await fetch('/api/sd/comfy/export-workflows', {
+                method: 'POST',
+                headers: getRequestHeaders(),
+                body: JSON.stringify({
+                    workflows: [srcWorkflow, dstWorkflow]
+                })
+            });
+            if (!response.ok) throw new Error(await response.text());
+            
+            // Trigger download of the zip file
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${srcWorkflow}_and_${dstWorkflow}.zip`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error('Failed to export workflows:', error);
+            toastr.error(error.message, 'Export failed');
+        }
     });
 
-    row.append(srcLabel, arrow, dstLabel, removeButton);
+    const removeButton = iconButton('Remove', 'trash', {
+        buttonType: ButtonType.DANGER,
+        title: 'Remove association',
+        srOnly: true,
+    });
+    removeButton.addEventListener('click', async () => {
+        // Validate workflows still exist
+        const workflows = await availableWorkflows();
+        if (!workflows[srcWorkflow] && !workflows[dstWorkflow]) {
+            const context = SillyTavern.getContext();
+            const settings = context.extensionSettings[settingsKey];
+            delete settings.savedAs[srcWorkflow];
+            context.saveSettingsDebounced();
+            row.remove();
+            return;
+        }
+
+        if (!workflows[srcWorkflow]) {
+            toastr.warning(`Source workflow "${srcWorkflow}" no longer exists`, 'Invalid association');
+        }
+        if (!workflows[dstWorkflow]) {
+            toastr.warning(`Destination workflow "${dstWorkflow}" no longer exists`, 'Invalid association');
+        }
+
+        if (await context.callPopup('This association references workflows that still exist. Remove anyway?', 'confirm')) {
+            delete settings.savedAs[srcWorkflow];
+            context.saveSettingsDebounced();
+            row.remove();
+        }
+    });
+
+    buttonsContainer.append(exportButton, removeButton);
+    row.append(srcLabel, arrow, dstLabel, buttonsContainer);
     return row;
 }
 

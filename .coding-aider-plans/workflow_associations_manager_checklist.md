@@ -9,13 +9,13 @@ See plan: [workflow_associations_manager.md](workflow_associations_manager_check
 - [x] Add "Manage Associations" button to workflow editor
 - [x] Show paired workflow name in editor UI
 - [x] Create association list view component
-- [ ] Add export buttons for workflow pairs
+- [x] Add export buttons for workflow pairs
 - [x] Add remove/update buttons for associations
 
 ## Data Management
-- [ ] Add validation for workflow existence
+- [x] Add validation for workflow existence
 - [x] Implement association removal
-- [ ] Add workflow pair export functionality
+- [x] Add workflow pair export functionality
 - [ ] Update savedAs data structure handling
 - [ ] Add association update capabilities
 
