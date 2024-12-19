@@ -1,5 +1,5 @@
 import { EXTENSION_NAME, settingsKey } from '../consts.js';
-import { availableWorkflows, currentWorkflowContent } from '../workflow/workflows.js';
+import { availableWorkflows } from '../workflow/workflows.js';
 import { iconButton, ButtonType } from './iconButton.js';
 import { getWorkflow } from '../api/workflow.js';
 
@@ -116,7 +116,7 @@ async function createAssociationRow(srcWorkflow, dstWorkflow) {
     updateButton.addEventListener('click', async () => {
         try {
             const workflows = await availableWorkflows();
-            
+
             // Create workflow selection popup content
             const srcSelect = document.createElement('select');
             srcSelect.style.width = '100%';
@@ -165,7 +165,7 @@ async function createAssociationRow(srcWorkflow, dstWorkflow) {
                 ...savedAs,
                 apiWorkflowName: newSrcName,
                 dstWorkflowName: newDstName,
-                lastUpdated: new Date().toISOString()
+                lastUpdated: new Date().toISOString(),
             };
             context.saveSettingsDebounced();
 
@@ -203,7 +203,7 @@ async function createAssociationRow(srcWorkflow, dstWorkflow) {
             toastr.warning(`Destination workflow "${dstWorkflow}" no longer exists`, 'Invalid association');
         }
 
-        if (await context.callPopup('This association references workflows that still exist. Remove anyway?', 'confirm')) {
+        if (await context.callGenericPopup('This association references workflows that still exist. Remove anyway?', context.POPUP_TYPE.CONFIRM)) {
             const settings = context.extensionSettings[settingsKey];
             delete settings.savedAs[srcWorkflow];
             context.saveSettingsDebounced();
