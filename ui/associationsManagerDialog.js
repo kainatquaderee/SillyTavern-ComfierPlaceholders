@@ -5,7 +5,7 @@ import { getWorkflow } from '../api/workflow.js';
 
 const t = SillyTavern.getContext().t;
 
-function createAssociationRow(srcWorkflow, dstWorkflow) {
+async function createAssociationRow(srcWorkflow, dstWorkflow) {
     const context = SillyTavern.getContext();
     const row = document.createElement('div');
     row.classList.add('association-row');
@@ -214,7 +214,7 @@ async function showAssociationsManagerDialog() {
 
     // Add existing associations
     for (const [srcWorkflow, savedAs] of Object.entries(settings.savedAs)) {
-        const row = createAssociationRow(srcWorkflow, savedAs.dstWorkflowName);
+        const row = await createAssociationRow(srcWorkflow, savedAs.dstWorkflowName);
         associationsList.appendChild(row);
     }
 
