@@ -173,10 +173,9 @@ function renderReplacerControls() {
     });
     saveAsButton.addEventListener('click', handleSaveAsClick);
 
-    const other = !!otherWorkflowName(currentWorkflowName());
-
-    const switchViewButton = other ? iconButton('Switch', 'exchange', {
-        title: 'Switch to the other workflow',
+    const otherName = otherWorkflowName(currentWorkflowName());
+    const switchViewButton = otherName ? iconButton('Switch', 'exchange', {
+        title: `Switch to ${otherName}`,
     }) : null;
     if (switchViewButton) switchViewButton.addEventListener('click', onSwitchViewClick);
 
@@ -207,15 +206,7 @@ function renderReplacerControls() {
         }
     });
 
-    // Add paired workflow label if one exists
-    const pairedWorkflow = otherWorkflowName(currentWorkflowName());
-    const pairedLabel = pairedWorkflow ? document.createElement('div') : null;
-    if (pairedLabel) {
-        pairedLabel.classList.add('paired-workflow-label');
-        pairedLabel.textContent = `Paired with: ${pairedWorkflow}`;
-    }
-
-    const elems = [h4, zapButton, replacerButton, manageButton, pairedLabel, saveAsButton, switchViewButton, associationsButton];
+    const elems = [h4, zapButton, replacerButton, manageButton, saveAsButton, switchViewButton, associationsButton];
     elems.forEach(elem => {
         if (elem) replacerSection.appendChild(elem);
     });
