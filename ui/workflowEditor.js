@@ -193,6 +193,20 @@ function renderReplacerControls() {
         }
     });
 
+    const associationsButton = iconButton('Associations', 'link', {
+        id: 'comfier--associations_button',
+        title: 'Manage workflow associations',
+    });
+    associationsButton.addEventListener('click', async () => {
+        try {
+            const { showAssociationsManagerDialog } = await import('./associationsManagerDialog.js');
+            await showAssociationsManagerDialog();
+        } catch (error) {
+            console.error('Failed to show associations dialog:', error);
+            toastr.error(error.message, 'Failed to show associations dialog');
+        }
+    });
+
     // Add paired workflow label if one exists
     const pairedWorkflow = otherWorkflowName(currentWorkflowName());
     if (pairedWorkflow) {
@@ -202,7 +216,7 @@ function renderReplacerControls() {
         replacerSection.appendChild(pairedLabel);
     }
 
-    const elems = [h4, zapButton, replacerButton, saveAsButton, switchViewButton, manageButton];
+    const elems = [h4, zapButton, replacerButton, saveAsButton, switchViewButton, manageButton, associationsButton];
     elems.forEach(elem => {
         if (elem) replacerSection.appendChild(elem);
     });
