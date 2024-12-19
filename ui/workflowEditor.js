@@ -76,7 +76,7 @@ async function handleSaveAsClick() {
         toastr.success(`Workflow saved as "${dstWorkflowName}"`, 'Workflow saved');
         savedAs.dstWorkflowName = dstWorkflowName;
         savedAs.lastUpdated = new Date().toISOString();
-        savedAs.description = savedAs.description || "Version with placeholders";
+        savedAs.description = savedAs.description || 'Version with placeholders';
         settings.savedAs[workflowName] = savedAs;
         context.saveSettingsDebounced();
 
@@ -180,7 +180,7 @@ function renderReplacerControls() {
     }) : null;
     if (switchViewButton) switchViewButton.addEventListener('click', onSwitchViewClick);
 
-    const manageButton = iconButton('Manage', 'list-check', {
+    const manageButton = iconButton('Manage rules', 'list-check', {
         id: 'comfier--manage_button',
         title: 'Manage replacement rules',
     });
@@ -193,9 +193,9 @@ function renderReplacerControls() {
         }
     });
 
-    const associationsButton = iconButton('Associations', 'link', {
+    const associationsButton = iconButton('Links', 'link', {
         id: 'comfier--associations_button',
-        title: 'Manage workflow associations',
+        title: 'Manage workflow links',
     });
     associationsButton.addEventListener('click', async () => {
         try {
@@ -209,14 +209,13 @@ function renderReplacerControls() {
 
     // Add paired workflow label if one exists
     const pairedWorkflow = otherWorkflowName(currentWorkflowName());
-    if (pairedWorkflow) {
-        const pairedLabel = document.createElement('div');
+    const pairedLabel = pairedWorkflow ? document.createElement('div') : null;
+    if (pairedLabel) {
         pairedLabel.classList.add('paired-workflow-label');
         pairedLabel.textContent = `Paired with: ${pairedWorkflow}`;
-        replacerSection.appendChild(pairedLabel);
     }
 
-    const elems = [h4, zapButton, replacerButton, saveAsButton, switchViewButton, manageButton, associationsButton];
+    const elems = [h4, zapButton, replacerButton, manageButton, pairedLabel, saveAsButton, switchViewButton, associationsButton];
     elems.forEach(elem => {
         if (elem) replacerSection.appendChild(elem);
     });

@@ -1,4 +1,4 @@
-import { EXTENSION_NAME, settingsKey } from '../consts.js';
+import { settingsKey } from '../consts.js';
 import { availableWorkflows } from '../workflow/workflows.js';
 import { iconButton, ButtonType } from './iconButton.js';
 import { getWorkflow } from '../api/workflow.js';
@@ -223,12 +223,12 @@ async function showAssociationsManagerDialog() {
     const header = document.createElement('div');
     header.style.marginBottom = '1em';
     const h3 = document.createElement('h3');
-    h3.textContent = t`Workflow Associations`;
+    h3.textContent = t`Workflow Links`;
     header.appendChild(h3);
     dialog.appendChild(header);
 
     const description = document.createElement('p');
-    description.textContent = t`Manage associations between original workflows and their saved versions.`;
+    description.textContent = t`Manage links between original ComfyUI workflows and placeholder-inserted workflows.`;
     description.style.marginBottom = '1em';
     dialog.appendChild(description);
 
