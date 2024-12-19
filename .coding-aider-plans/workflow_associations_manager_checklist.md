@@ -7,7 +7,7 @@ See plan: [workflow_associations_manager.md](workflow_associations_manager_check
 ## UI Components
 - [x] Create new AssociationsManagerDialog component
 - [x] Add "Manage Associations" button to workflow editor
-- [ ] Show paired workflow name in editor UI
+- [x] Show paired workflow name in editor UI
 - [ ] Create association list view component
 - [ ] Add export buttons for workflow pairs
 - [ ] Add remove/update buttons for associations

@@ -191,6 +191,15 @@ function renderReplacerControls() {
         }
     });
 
+    // Add paired workflow label if one exists
+    const other = otherWorkflowName(currentWorkflowName());
+    if (other) {
+        const pairedLabel = document.createElement('div');
+        pairedLabel.classList.add('paired-workflow-label');
+        pairedLabel.textContent = `Paired with: ${other}`;
+        replacerSection.appendChild(pairedLabel);
+    }
+
     const elems = [h4, zapButton, replacerButton, saveAsButton, switchViewButton, manageButton];
     elems.forEach(elem => {
         if (elem) replacerSection.appendChild(elem);
