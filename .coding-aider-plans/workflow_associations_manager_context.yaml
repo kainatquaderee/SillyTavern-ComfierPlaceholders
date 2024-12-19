@@ -1,0 +1,20 @@
+---
+files:
+  - path: "workflow/workflows.js"
+    readOnly: false
+  - path: "workflow/parser.js"
+    readOnly: false
+  - path: "ui/workflowEditor.js"
+    readOnly: false
+  - path: "ui/settings.js"
+    readOnly: false
+  - path: "ui/iconButton.js"
+    readOnly: false
+  - path: "ui/icon.js"
+    readOnly: false
+  - path: "index.js"
+    readOnly: false
+  - path: "consts.js"
+    readOnly: false
+  - path: "comfier.less"
+    readOnly: true
