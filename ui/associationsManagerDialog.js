@@ -10,12 +10,12 @@ async function createAssociationRow(srcWorkflow, dstWorkflow) {
     const row = document.createElement('div');
     row.classList.add('association-row');
     row.style.display = 'flex';
-    row.style.gap = '10px';
+    row.style.gap = '8px';
     row.style.alignItems = 'center';
-    row.style.marginBottom = '10px';
-    row.style.padding = '8px';
+    row.style.marginBottom = '8px';
+    row.style.padding = '12px';
     row.style.border = '1px solid var(--SmartThemeBorderColor)';
-    row.style.borderRadius = '4px';
+    row.style.borderRadius = '8px';
 
     // Check if workflows exist
     const workflows = await availableWorkflows();
@@ -25,12 +25,16 @@ async function createAssociationRow(srcWorkflow, dstWorkflow) {
     const srcLabel = document.createElement('div');
     srcLabel.textContent = srcWorkflow;
     srcLabel.style.flex = '1';
+    srcLabel.style.minWidth = '0';
+    srcLabel.style.overflow = 'hidden';
+    srcLabel.style.textOverflow = 'ellipsis';
     if (!srcExists) {
         srcLabel.style.color = 'var(--warning)';
         srcLabel.title = 'Source workflow not found';
         const warningIcon = document.createElement('i');
         warningIcon.classList.add('fas', 'fa-exclamation-triangle');
-        warningIcon.style.marginLeft = '5px';
+        warningIcon.style.marginLeft = '8px';
+        warningIcon.style.marginRight = '4px';
         warningIcon.style.color = 'var(--warning)';
         srcLabel.appendChild(warningIcon);
     }
@@ -42,6 +46,9 @@ async function createAssociationRow(srcWorkflow, dstWorkflow) {
     const dstLabel = document.createElement('div');
     dstLabel.textContent = dstWorkflow;
     dstLabel.style.flex = '1';
+    dstLabel.style.minWidth = '0';
+    dstLabel.style.overflow = 'hidden';
+    dstLabel.style.textOverflow = 'ellipsis';
     if (!dstExists) {
         dstLabel.style.color = 'var(--warning)';
         dstLabel.title = 'Destination workflow not found';
@@ -58,8 +65,9 @@ async function createAssociationRow(srcWorkflow, dstWorkflow) {
 
     const buttonsContainer = document.createElement('div');
     buttonsContainer.style.display = 'flex';
-    buttonsContainer.style.gap = '5px';
+    buttonsContainer.style.gap = '4px';
     buttonsContainer.style.minWidth = 'fit-content';
+    buttonsContainer.style.marginLeft = 'auto';
 
     const exportButton = iconButton('Export', 'download', {
         title: 'Download both workflows',
