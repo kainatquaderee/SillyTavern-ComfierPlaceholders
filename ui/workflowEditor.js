@@ -74,10 +74,12 @@ async function handleSaveAsClick() {
     try {
         const dstWorkflowName = await saveWorkflowAs(currentWorkflowContent(name), name);
         toastr.success(`Workflow saved as "${dstWorkflowName}"`, 'Workflow saved');
-        savedAs.dstWorkflowName = dstWorkflowName;
-        savedAs.lastUpdated = new Date().toISOString();
-        savedAs.description = savedAs.description || 'Version with placeholders';
-        settings.savedAs[workflowName] = savedAs;
+        settings.savedAs[workflowName] = {
+            apiWorkflowName: workflowName,
+            dstWorkflowName: dstWorkflowName,
+            lastUpdated: new Date().toISOString(),
+            description: savedAs.description || 'Version with placeholders'
+        };
         context.saveSettingsDebounced();
 
         // repaint our who knows what
