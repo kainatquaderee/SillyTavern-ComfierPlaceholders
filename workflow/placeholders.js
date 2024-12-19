@@ -5,7 +5,7 @@ import { EXTENSION_NAME } from '../consts.js';
  * @property {string} find - Placeholder to find, without %%
  * @property {string} [replace] - Value to replace the placeholder with, if custom
  * @property {boolean} [custom] - Custom placeholder
- * @property {boolean} [present] - Placeholder is present in the workflow
+ * @property {boolean} [present] - Placeholder is present in the current workflow
  * @property {boolean} [valid] - Placeholder is present in the editor's placeholder list
  */
 
@@ -13,25 +13,22 @@ const slugify = (str) => str.toLowerCase().replace(/ /g, '_').replace(/[^a-z0-9_
 
 
 /**
- * Get all available placeholders as options
+ * Get current placeholders in the workflow editor as name: value select options with %% around them
+ *
  * @returns {Record<string,string>} Placeholder options
  */
-function getPlaceholderOptions() {
+export function getPlaceholderOptions() {
     const rulesPlaceholders = getCurrentPlaceholders();
     const placeholderOptions = {};
     for (const [key] of Object.entries(rulesPlaceholders)) {
         placeholderOptions[key] = `%${key}%`;
     }
-    // console.log(`[${EXTENSION_NAME}]`, 'getPlaceholderOptions: ', placeholderOptions);
     return placeholderOptions;
-    // return Object.entries(rulesPlaceholders).sort().reduce((acc, [key, value]) => {
-    //     acc[key] = `%${value}%`;
-    //     return acc;
-    // }, {});
 }
 
 /**
- * Get all available placeholder values
+ * Get current placeholder values in the workflow editor with %% around them
+ *
  * @returns {string[]}
  */
 export function getPlaceholderOptionValues() {
@@ -44,13 +41,20 @@ export function getPlaceholderOptionValues() {
  *
  * @returns {Record<string,PlaceholderInfo>} Placeholder info
  */
-function getCurrentPlaceholders() {
-    const workflow = document.getElementById('sd_comfy_workflow_editor_workflow').value;
+export function getCurrentPlaceholders() {
+    const workflow = document.getElementById('sd_comfy_workflow_editor_workflow')?.value;
+    if (!workflow) {
+        console.warn(`[${EXTENSION_NAME}]`, 'getCurrentPlaceholders: Could not find workflow');
+    }
     const placeholderList = document.querySelectorAll('.sd_comfy_workflow_editor_placeholder_list > li[data-placeholder]') || [];
+    if (!placeholderList.length) {
+        console.warn(`[${EXTENSION_NAME}]`, 'getCurrentPlaceholders: Could not find placeholder list');
+        return {};
+    }
     const placeholders = {};
     for (const placeholder of placeholderList) {
         const key = placeholder.getAttribute('data-placeholder');
-        const present = workflow.search(`"%${key}%"`) !== -1;
+        const present = workflow?.search(`"%${key}%"`) !== -1;
         placeholders[key] = {
             find: key,
             value: key, // for compatibility with the replacement rule dialog
@@ -63,7 +67,7 @@ function getCurrentPlaceholders() {
     const customPlaceholders = document.querySelectorAll('.sd_comfy_workflow_editor_placeholder_list_custom > li[data-placeholder]') || [];
     for (const placeholder of customPlaceholders) {
         const key = placeholder.getAttribute('data-placeholder');
-        const present = workflow.search(`"%${key}%"`) !== -1;
+        const present = workflow?.search(`"%${key}%"`) !== -1;
         const value = placeholder.find('.text_pole sd_comfy_workflow_editor_custom_replace').value;
         placeholders[key] = {
             find: key,
@@ -73,37 +77,14 @@ function getCurrentPlaceholders() {
             valid: true,
         };
     }
-    // console.log(`[${EXTENSION_NAME}]`, 'getCurrentPlaceholders: ', placeholders);
     return placeholders;
 }
-
-/**
- * Make placeholder info object
- * @param {Object} args - Placeholder info arguments
- * @param {string} args.placeholder - Placeholder name
- * @param {boolean} args.present - Placeholder is present in the workflow
- * @param {boolean} args.valid - Placeholder is present in the editor's placeholder list
- * @param {boolean} args.custom - Custom placeholder
- *
- * @returns {PlaceholderInfo} Placeholder info
- */
-function makePlaceholderInfo(args) {
-    return {
-        find: args.placeholder,
-        replace: args.placeholder,
-        custom: false,
-        present: false,
-        valid: false,
-    };
-}
-
-// end: code to rework
 
 /**
  * Add a custom placeholder to the workflow editor
  * @param {PlaceholderInfo} placeholder - Placeholder info
  */
-function addCustomPlaceholderToSD(placeholder) {
+export function addCustomPlaceholderToSD(placeholder) {
     const addBtn = document.getElementById('sd_comfy_workflow_editor_placeholder_add');
 
     // get a blank placeholder in the DOM
@@ -117,6 +98,3 @@ function addCustomPlaceholderToSD(placeholder) {
     replace.dispatchEvent(new Event('input'));
     console.log(`[${EXTENSION_NAME}]`, 'addCustomPlaceholderToSD: ', placeholder);
 }
-
-
-export { getCurrentPlaceholders, getPlaceholderOptions, makePlaceholderInfo, addCustomPlaceholderToSD };
