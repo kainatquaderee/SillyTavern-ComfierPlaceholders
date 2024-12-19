@@ -13,21 +13,53 @@ function createAssociationRow(srcWorkflow, dstWorkflow) {
     row.style.gap = '10px';
     row.style.alignItems = 'center';
     row.style.marginBottom = '10px';
+    row.style.padding = '8px';
+    row.style.border = '1px solid var(--SmartThemeBorderColor)';
+    row.style.borderRadius = '4px';
+
+    // Check if workflows exist
+    const workflows = await availableWorkflows();
+    const srcExists = workflows[srcWorkflow];
+    const dstExists = workflows[dstWorkflow];
 
     const srcLabel = document.createElement('div');
     srcLabel.textContent = srcWorkflow;
     srcLabel.style.flex = '1';
+    if (!srcExists) {
+        srcLabel.style.color = 'var(--warning)';
+        srcLabel.title = 'Source workflow not found';
+        const warningIcon = document.createElement('i');
+        warningIcon.classList.add('fas', 'fa-exclamation-triangle');
+        warningIcon.style.marginLeft = '5px';
+        warningIcon.style.color = 'var(--warning)';
+        srcLabel.appendChild(warningIcon);
+    }
 
     const arrow = document.createElement('i');
     arrow.classList.add('fas', 'fa-arrow-right');
+    arrow.style.margin = '0 10px';
 
     const dstLabel = document.createElement('div');
     dstLabel.textContent = dstWorkflow;
     dstLabel.style.flex = '1';
+    if (!dstExists) {
+        dstLabel.style.color = 'var(--warning)';
+        dstLabel.title = 'Destination workflow not found';
+        const warningIcon = document.createElement('i');
+        warningIcon.classList.add('fas', 'fa-exclamation-triangle');
+        warningIcon.style.marginLeft = '5px';
+        warningIcon.style.color = 'var(--warning)';
+        dstLabel.appendChild(warningIcon);
+    }
+
+    if (!srcExists || !dstExists) {
+        row.style.backgroundColor = 'var(--SmartThemeWarningBgColor)';
+    }
 
     const buttonsContainer = document.createElement('div');
     buttonsContainer.style.display = 'flex';
     buttonsContainer.style.gap = '5px';
+    buttonsContainer.style.minWidth = 'fit-content';
 
     const exportButton = iconButton('Export', 'download', {
         title: 'Download both workflows',
