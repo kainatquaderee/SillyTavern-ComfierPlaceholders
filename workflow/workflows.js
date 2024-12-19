@@ -103,13 +103,10 @@ export function availableWorkflows() {
         console.warn(`[${EXTENSION_NAME}]`, t`No workflow select found`);
         return {};
     }
-    console.log(`[${EXTENSION_NAME}]`, t`Available workflows`, workflowSelect.options);
-    const ret = Array.from(workflowSelect.options).reduce((acc, option) => {
+    return Array.from(workflowSelect.options).reduce((acc, option) => {
         acc[option.value] = option.textContent;
         return acc;
-    }   , {});
-    console.log(`[${EXTENSION_NAME}]`, t`Available workflows`, ret);
-    return ret;
+    }, {});
 }
 
 /**

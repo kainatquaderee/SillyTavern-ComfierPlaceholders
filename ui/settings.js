@@ -52,7 +52,7 @@ function renderExtensionSettings() {
     // Manage replacements button
     const manageButton = document.createElement('button');
     manageButton.classList.add('menu_button');
-    manageButton.textContent = 'Manage Replacements';
+    manageButton.textContent = 'Replacement rules';
     manageButton.style.marginTop = '10px';
     manageButton.addEventListener('click', () => {
         import('./ruleManagerDialog.js').then(({ showReplacementRuleManagerDialog }) => {
@@ -64,7 +64,7 @@ function renderExtensionSettings() {
     // Add Manage Associations button
     const manageAssociationsButton = document.createElement('button');
     manageAssociationsButton.classList.add('menu_button');
-    manageAssociationsButton.textContent = 'Manage Workflow Associations';
+    manageAssociationsButton.textContent = 'Workflow links';
     manageAssociationsButton.style.marginTop = '10px';
     manageAssociationsButton.addEventListener('click', () => {
         import('./associationsManagerDialog.js').then(({ showAssociationsManagerDialog }) => {

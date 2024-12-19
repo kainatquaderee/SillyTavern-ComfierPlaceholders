@@ -78,7 +78,7 @@ async function handleSaveAsClick() {
             apiWorkflowName: workflowName,
             dstWorkflowName: dstWorkflowName,
             lastUpdated: new Date().toISOString(),
-            description: savedAs.description || 'Version with placeholders'
+            description: savedAs.description || 'Version with placeholders',
         };
         context.saveSettingsDebounced();
 
@@ -152,7 +152,8 @@ async function onSwitchViewClick(e) {
 
 function renderReplacerControls() {
     const replacerSection = document.createElement('div');
-    replacerSection.classList.add('sd_comfy_workflow_editor_replacer_section', 'flex-container', 'flexFlowColumn', 'indent20p');
+    replacerSection.classList.add('sd_comfy_workflow_editor_replacer_section', 'flex-container', 'flexFlowColumn');
+    replacerSection.style.padding = '3px 5px';
 
     const h4 = document.createElement('h4');
     h4.textContent = 'Replacer';
@@ -210,6 +211,7 @@ function renderReplacerControls() {
 
     const elems = [h4, zapButton, replacerButton, manageButton, saveAsButton, switchViewButton, associationsButton];
     elems.forEach(elem => {
+        if (elem instanceof HTMLButtonElement) elem.style.margin = '0';
         if (elem) replacerSection.appendChild(elem);
     });
     return replacerSection;
