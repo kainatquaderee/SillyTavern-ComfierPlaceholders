@@ -169,9 +169,9 @@ async function createAssociationRow(srcWorkflow, dstWorkflow) {
             };
             context.saveSettingsDebounced();
 
-            // Update UI
-            srcLabel.textContent = newSrcName;
-            dstLabel.textContent = newDstName;
+            // Update UI by recreating the row
+            const newRow = await createAssociationRow(newSrcName, newDstName);
+            row.replaceWith(newRow);
             toastr.success('Association updated');
         } catch (error) {
             console.error('Failed to update association:', error);
