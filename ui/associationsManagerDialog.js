@@ -1,6 +1,7 @@
 import { EXTENSION_NAME, settingsKey } from '../consts.js';
 import { availableWorkflows, currentWorkflowContent } from '../workflow/workflows.js';
 import { iconButton, ButtonType } from './iconButton.js';
+import { getWorkflow } from '../api/workflow.js';
 
 const t = SillyTavern.getContext().t;
 
@@ -19,7 +20,7 @@ function createAssociationRow(srcWorkflow, dstWorkflow) {
 
     const arrow = document.createElement('i');
     arrow.classList.add('fas', 'fa-arrow-right');
-    
+
     const dstLabel = document.createElement('div');
     dstLabel.textContent = dstWorkflow;
     dstLabel.style.flex = '1';
@@ -34,23 +35,30 @@ function createAssociationRow(srcWorkflow, dstWorkflow) {
     });
     exportButton.addEventListener('click', async () => {
         try {
-            // Create a text file with both workflows
-            const srcResponse = await fetch(`/api/sd/comfy/load-workflow?filename=${encodeURIComponent(srcWorkflow)}`);
-            const dstResponse = await fetch(`/api/sd/comfy/load-workflow?filename=${encodeURIComponent(dstWorkflow)}`);
-            
-            if (!srcResponse.ok || !dstResponse.ok) {
-                throw new Error('Failed to load workflows');
-            }
+            // temporary workaround: pack both workflows into a single object
+            const srcWorkflowJsonStr = await getWorkflow(srcWorkflow);
+            const dstWorkflowJsonStr = await getWorkflow(dstWorkflow);
 
-            const srcContent = await srcResponse.text();
-            const dstContent = await dstResponse.text();
-            
-            const content = `// Source workflow: ${srcWorkflow}\n${srcContent}\n\n// Destination workflow: ${dstWorkflow}\n${dstContent}`;
-            const blob = new Blob([content], {type: 'application/json'});
+            console.log(`[${EXTENSION_NAME}]`,
+                `${srcWorkflow} JSON str (${typeof srcWorkflowJsonStr}):`,
+                srcWorkflowJsonStr);
+
+            const srcWorkflowJson = JSON.parse(srcWorkflowJsonStr.trim());
+            const dstWorkflowJson = JSON.parse(dstWorkflowJsonStr.trim());
+
+            console.log(`[${EXTENSION_NAME}]`,
+                `${srcWorkflow} JSON (${typeof srcWorkflowJson}):`,
+                srcWorkflowJson);
+
+            let value = { [srcWorkflow]: srcWorkflowJson, [dstWorkflow]: dstWorkflowJson };
+            console.log(`[${EXTENSION_NAME}]`, 'Exporting workflows:', value);
+            const content = JSON.stringify(value, null, 2);
+
+            const blob = new Blob([content], { type: 'application/json' });
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `${srcWorkflow}_and_${dstWorkflow}.json`;
+            a.download = `${srcWorkflow}_and_${dstWorkflow}`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
@@ -100,7 +108,7 @@ function createAssociationRow(srcWorkflow, dstWorkflow) {
 async function showAssociationsManagerDialog() {
     const context = SillyTavern.getContext();
     const settings = context.extensionSettings[settingsKey];
-    
+
     const dialog = document.createElement('div');
     dialog.classList.add('associations-dialog');
 
@@ -118,13 +126,13 @@ async function showAssociationsManagerDialog() {
 
     const associationsList = document.createElement('div');
     associationsList.classList.add('associations-list');
-    
+
     // Add existing associations
     for (const [srcWorkflow, savedAs] of Object.entries(settings.savedAs)) {
         const row = createAssociationRow(srcWorkflow, savedAs.dstWorkflowName);
         associationsList.appendChild(row);
     }
-    
+
     dialog.appendChild(associationsList);
 
     // Show empty state if no associations
