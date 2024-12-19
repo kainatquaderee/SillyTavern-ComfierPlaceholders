@@ -5,6 +5,7 @@ import { iconButton, ButtonType } from './iconButton.js';
 const t = SillyTavern.getContext().t;
 
 function createAssociationRow(srcWorkflow, dstWorkflow) {
+    const context = SillyTavern.getContext();
     const row = document.createElement('div');
     row.classList.add('association-row');
     row.style.display = 'flex';
@@ -35,7 +36,7 @@ function createAssociationRow(srcWorkflow, dstWorkflow) {
         try {
             const response = await fetch('/api/sd/comfy/export-workflows', {
                 method: 'POST',
-                headers: getRequestHeaders(),
+                headers: context.getRequestHeaders(),
                 body: JSON.stringify({
                     workflows: [srcWorkflow, dstWorkflow]
                 })
