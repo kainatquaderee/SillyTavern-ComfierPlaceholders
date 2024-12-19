@@ -192,22 +192,19 @@ async function showReplacementRuleManagerDialog() {
         input.addEventListener('change', async () => {
             const file = input.files[0];
             if (!file) return;
-            const reader = new FileReader();
-            reader.onload = async (e) => {
-                try {
-                    const replacements = JSON.parse(e.target.result);
-                    if (!Array.isArray(replacements)) {
-                        throw new Error('Invalid JSON');
-                    }
-                    settings.replacements = replacements;
-                    context.saveSettingsDebounced();
-                    renderReplacements();
-                } catch (error) {
-                    console.error('Failed to import replacements:', error);
-                    alert('Failed to import replacements');
+            const text = await file.text();
+            try {
+                const replacements = JSON.parse(text);
+                if (!Array.isArray(replacements)) {
+                    throw new Error('Invalid JSON');
                 }
-            };
-            reader.readAsText(file);
+                settings.replacements = replacements;
+                context.saveSettingsDebounced();
+                renderReplacements();
+            } catch (error) {
+                console.error('Failed to import replacements:', error);
+                alert('Failed to import replacements');
+            }
         });
         input.click();
     }
