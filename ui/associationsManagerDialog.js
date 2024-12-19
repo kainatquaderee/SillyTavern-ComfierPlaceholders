@@ -116,28 +116,45 @@ async function createAssociationRow(srcWorkflow, dstWorkflow) {
     updateButton.addEventListener('click', async () => {
         try {
             const workflows = await availableWorkflows();
-            const newSrcName = await context.callPopup(
-                'Enter new source workflow name:', 
-                'input',
-                srcWorkflow
-            );
-            if (!newSrcName) return;
             
-            const newDstName = await context.callPopup(
-                'Enter new destination workflow name:',
-                'input', 
-                dstWorkflow
-            );
-            if (!newDstName) return;
+            // Create workflow selection popup content
+            const srcSelect = document.createElement('select');
+            srcSelect.style.width = '100%';
+            srcSelect.style.marginBottom = '10px';
+            Object.keys(workflows).forEach(name => {
+                const option = document.createElement('option');
+                option.value = name;
+                option.textContent = name;
+                if (name === srcWorkflow) option.selected = true;
+                srcSelect.appendChild(option);
+            });
 
-            // Validate new names exist
-            if (!workflows[newSrcName]) {
-                toastr.error(`Source workflow "${newSrcName}" does not exist`);
+            const dstSelect = document.createElement('select');
+            dstSelect.style.width = '100%';
+            Object.keys(workflows).forEach(name => {
+                const option = document.createElement('option');
+                option.value = name;
+                option.textContent = name;
+                if (name === dstWorkflow) option.selected = true;
+                dstSelect.appendChild(option);
+            });
+
+            const popupContent = document.createElement('div');
+            popupContent.appendChild(document.createTextNode('Source workflow:'));
+            popupContent.appendChild(srcSelect);
+            popupContent.appendChild(document.createTextNode('Destination workflow:'));
+            popupContent.appendChild(dstSelect);
+
+            // Show the popup
+            const result = await context.callGenericPopup(popupContent, context.POPUP_TYPE.CONFIRM, 'Update Association');
+            if (result !== context.POPUP_RESULT.AFFIRMATIVE) return;
+
+            const newSrcName = srcSelect.value;
+            const newDstName = dstSelect.value;
+
+            if (newSrcName === newDstName) {
+                toastr.error('Source and destination workflows must be different');
                 return;
-            }
-            if (!workflows[newDstName]) {
-                toastr.error(`Destination workflow "${newDstName}" does not exist`);
-                return; 
             }
 
             // Update the association
