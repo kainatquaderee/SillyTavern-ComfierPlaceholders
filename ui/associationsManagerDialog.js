@@ -69,6 +69,59 @@ function createAssociationRow(srcWorkflow, dstWorkflow) {
         }
     });
 
+    const updateButton = iconButton('Update', 'pen', {
+        title: 'Update association',
+        srOnly: true,
+    });
+    updateButton.addEventListener('click', async () => {
+        try {
+            const workflows = await availableWorkflows();
+            const newSrcName = await context.callPopup(
+                'Enter new source workflow name:', 
+                'input',
+                srcWorkflow
+            );
+            if (!newSrcName) return;
+            
+            const newDstName = await context.callPopup(
+                'Enter new destination workflow name:',
+                'input', 
+                dstWorkflow
+            );
+            if (!newDstName) return;
+
+            // Validate new names exist
+            if (!workflows[newSrcName]) {
+                toastr.error(`Source workflow "${newSrcName}" does not exist`);
+                return;
+            }
+            if (!workflows[newDstName]) {
+                toastr.error(`Destination workflow "${newDstName}" does not exist`);
+                return; 
+            }
+
+            // Update the association
+            const settings = context.extensionSettings[settingsKey];
+            const savedAs = settings.savedAs[srcWorkflow];
+            delete settings.savedAs[srcWorkflow];
+            settings.savedAs[newSrcName] = {
+                ...savedAs,
+                apiWorkflowName: newSrcName,
+                dstWorkflowName: newDstName,
+                lastUpdated: new Date().toISOString()
+            };
+            context.saveSettingsDebounced();
+
+            // Update UI
+            srcLabel.textContent = newSrcName;
+            dstLabel.textContent = newDstName;
+            toastr.success('Association updated');
+        } catch (error) {
+            console.error('Failed to update association:', error);
+            toastr.error(error.message, 'Update failed');
+        }
+    });
+
     const removeButton = iconButton('Remove', 'trash', {
         buttonType: ButtonType.DANGER,
         title: 'Remove association',
@@ -100,7 +153,7 @@ function createAssociationRow(srcWorkflow, dstWorkflow) {
         }
     });
 
-    buttonsContainer.append(exportButton, removeButton);
+    buttonsContainer.append(exportButton, updateButton, removeButton);
     row.append(srcLabel, arrow, dstLabel, buttonsContainer);
     return row;
 }

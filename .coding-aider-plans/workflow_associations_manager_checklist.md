@@ -20,10 +20,10 @@ See plan: [workflow_associations_manager.md](workflow_associations_manager_check
 - [ ] Add association update capabilities
 
 ## Integration
-- [ ] Connect new dialog to workflow editor
-- [ ] Update workflow loading to show pairs
-- [ ] Add event handlers for association changes
-- [ ] Integrate with existing save workflow logic
+- [x] Connect new dialog to workflow editor
+- [x] Update workflow loading to show pairs
+- [x] Add event handlers for association changes
+- [x] Integrate with existing save workflow logic
 
 ## Testing
 - [ ] Test association management UI
