@@ -204,6 +204,7 @@ async function createAssociationRow(srcWorkflow, dstWorkflow) {
         }
 
         if (await context.callPopup('This association references workflows that still exist. Remove anyway?', 'confirm')) {
+            const settings = context.extensionSettings[settingsKey];
             delete settings.savedAs[srcWorkflow];
             context.saveSettingsDebounced();
             row.remove();
