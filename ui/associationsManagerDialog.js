@@ -78,11 +78,6 @@ async function createAssociationRow(srcWorkflow, dstWorkflow) {
         srcRow.append(srcIcon, srcLabel);
     }
 
-    // Create arrow
-    const arrow = document.createElement('i');
-    arrow.classList.add('fas', 'fa-arrow-down');
-    arrow.style.marginLeft = '12px';
-
     // Create destination workflow row
     const dstRow = document.createElement('div');
     dstRow.style.display = 'flex';
@@ -280,7 +275,7 @@ async function createAssociationRow(srcWorkflow, dstWorkflow) {
     });
 
     buttonsContainer.append(exportButton, updateButton, removeButton);
-    namesContainer.append(srcRow, arrow, dstRow);
+    namesContainer.append(srcRow, dstRow);
     row.append(namesContainer, buttonsContainer);
     return row;
 }
