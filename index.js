@@ -33,6 +33,8 @@ import { injectReplacerButton } from './ui/workflowEditor.js';
  * @typedef {Object} SavedVersion
  * @property {string} apiWorkflowName - Name of the source workflow
  * @property {string} dstWorkflowName - Name of the destination workflow
+ * @property {string} lastUpdated - ISO timestamp of last update
+ * @property {string} description - Optional description of the saved version
  */
 
 /**
@@ -44,7 +46,17 @@ import { injectReplacerButton } from './ui/workflowEditor.js';
  */
 const defaultSettings = Object.freeze({
     enabled: true,
-    savedAs: {},
+    savedAs: {
+        // Example structure with new fields
+        /*
+        "workflow.json": {
+            apiWorkflowName: "workflow.json",
+            dstWorkflowName: "workflow_with_placeholders.json", 
+            lastUpdated: "2024-12-19T12:00:00Z",
+            description: "Version with all inputs replaced by placeholders"
+        }
+        */
+    },
     replacements: [
         // Default replacements extracted from sample workflows
         {

@@ -16,7 +16,7 @@ See plan: [workflow_associations_manager.md](workflow_associations_manager_check
 - [x] Add validation for workflow existence
 - [x] Implement association removal
 - [x] Add workflow pair export functionality
-- [ ] Update savedAs data structure handling
+- [x] Update savedAs data structure handling
 - [ ] Add association update capabilities
 
 ## Integration
