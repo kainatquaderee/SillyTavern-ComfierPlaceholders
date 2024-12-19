@@ -2,6 +2,8 @@ import { settingsKey } from '../consts.js';
 import { availableWorkflows } from '../workflow/workflows.js';
 import { iconButton, ButtonType } from './iconButton.js';
 import { getWorkflow } from '../api/workflow.js';
+import { changeWorkflow } from '../workflow/workflows.js';
+import { delay } from './workflowEditor.js';
 
 const t = SillyTavern.getContext().t;
 
@@ -11,52 +13,113 @@ async function createAssociationRow(srcWorkflow, dstWorkflow) {
     row.classList.add('association-row');
     row.style.display = 'flex';
     row.style.gap = '8px';
-    row.style.alignItems = 'center';
     row.style.marginBottom = '8px';
     row.style.padding = '12px';
     row.style.border = '1px solid var(--SmartThemeBorderColor)';
     row.style.borderRadius = '8px';
+
+    // Create a container for the workflow names
+    const namesContainer = document.createElement('div');
+    namesContainer.style.display = 'flex';
+    namesContainer.style.flexDirection = 'column';
+    namesContainer.style.gap = '8px';
+    namesContainer.style.flex = '1';
+    namesContainer.style.minWidth = '0';
 
     // Check if workflows exist
     const workflows = await availableWorkflows();
     const srcExists = workflows[srcWorkflow];
     const dstExists = workflows[dstWorkflow];
 
-    const srcLabel = document.createElement('div');
+    // Create source workflow row
+    const srcRow = document.createElement('div');
+    srcRow.style.display = 'flex';
+    srcRow.style.alignItems = 'center';
+    srcRow.style.gap = '8px';
+
+    const srcLabel = document.createElement('a');
+    srcLabel.href = '#';
     srcLabel.textContent = srcWorkflow;
     srcLabel.style.flex = '1';
     srcLabel.style.minWidth = '0';
     srcLabel.style.overflow = 'hidden';
     srcLabel.style.textOverflow = 'ellipsis';
+    srcLabel.style.textDecoration = 'none';
+    srcLabel.style.color = 'inherit';
     if (!srcExists) {
         srcLabel.style.color = 'var(--warning)';
         srcLabel.title = 'Source workflow not found';
+    }
+    srcLabel.addEventListener('click', async (e) => {
+        e.preventDefault();
+        if (srcExists) {
+            await changeWorkflow(srcWorkflow);
+            const cancelButton = row.closest('.popup').querySelector('.popup-button-cancel');
+            cancelButton.click();
+            await delay(500);
+            const editorButton = document.getElementById('sd_comfy_open_workflow_editor');
+            editorButton.click();
+        }
+    });
+
+    const srcIcon = document.createElement('i');
+    srcIcon.classList.add('fas', 'fa-file');
+    if (!srcExists) {
         const warningIcon = document.createElement('i');
         warningIcon.classList.add('fas', 'fa-exclamation-triangle');
-        warningIcon.style.marginLeft = '8px';
-        warningIcon.style.marginRight = '4px';
+        warningIcon.style.marginLeft = '4px';
         warningIcon.style.color = 'var(--warning)';
-        srcLabel.appendChild(warningIcon);
+        srcRow.append(srcIcon, srcLabel, warningIcon);
+    } else {
+        srcRow.append(srcIcon, srcLabel);
     }
 
+    // Create arrow
     const arrow = document.createElement('i');
-    arrow.classList.add('fas', 'fa-arrow-right');
-    arrow.style.margin = '0 10px';
+    arrow.classList.add('fas', 'fa-arrow-down');
+    arrow.style.marginLeft = '12px';
 
-    const dstLabel = document.createElement('div');
+    // Create destination workflow row
+    const dstRow = document.createElement('div');
+    dstRow.style.display = 'flex';
+    dstRow.style.alignItems = 'center';
+    dstRow.style.gap = '8px';
+
+    const dstLabel = document.createElement('a');
+    dstLabel.href = '#';
     dstLabel.textContent = dstWorkflow;
     dstLabel.style.flex = '1';
     dstLabel.style.minWidth = '0';
     dstLabel.style.overflow = 'hidden';
     dstLabel.style.textOverflow = 'ellipsis';
+    dstLabel.style.textDecoration = 'none';
+    dstLabel.style.color = 'inherit';
     if (!dstExists) {
         dstLabel.style.color = 'var(--warning)';
         dstLabel.title = 'Destination workflow not found';
+    }
+    dstLabel.addEventListener('click', async (e) => {
+        e.preventDefault();
+        if (dstExists) {
+            await changeWorkflow(dstWorkflow);
+            const cancelButton = row.closest('.popup').querySelector('.popup-button-cancel');
+            cancelButton.click();
+            await delay(500);
+            const editorButton = document.getElementById('sd_comfy_open_workflow_editor');
+            editorButton.click();
+        }
+    });
+
+    const dstIcon = document.createElement('i');
+    dstIcon.classList.add('fas', 'fa-file');
+    if (!dstExists) {
         const warningIcon = document.createElement('i');
         warningIcon.classList.add('fas', 'fa-exclamation-triangle');
-        warningIcon.style.marginLeft = '5px';
+        warningIcon.style.marginLeft = '4px';
         warningIcon.style.color = 'var(--warning)';
-        dstLabel.appendChild(warningIcon);
+        dstRow.append(dstIcon, dstLabel, warningIcon);
+    } else {
+        dstRow.append(dstIcon, dstLabel);
     }
 
     if (!srcExists || !dstExists) {
@@ -209,7 +272,8 @@ async function createAssociationRow(srcWorkflow, dstWorkflow) {
     });
 
     buttonsContainer.append(exportButton, updateButton, removeButton);
-    row.append(srcLabel, arrow, dstLabel, buttonsContainer);
+    namesContainer.append(srcRow, arrow, dstRow);
+    row.append(namesContainer, buttonsContainer);
     return row;
 }
 
